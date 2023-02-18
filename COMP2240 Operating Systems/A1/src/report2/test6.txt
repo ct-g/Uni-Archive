@@ -1,0 +1,32 @@
+// Same arrival time, back heavy
+BEGIN
+
+DISP: 1
+END
+
+ID: p1
+Arrive: 0
+ExecSize: 3
+END
+
+ID: p2
+Arrive: 0
+ExecSize: 4
+END
+
+ID: p3
+Arrive: 0
+ExecSize: 5
+END
+
+ID: p4
+Arrive: 0
+ExecSize: 20
+END
+
+ID: p5
+Arrive: 0
+ExecSize: 10
+END
+
+EOF 

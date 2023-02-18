@@ -1,0 +1,15 @@
+LRU - Fixed:
+PID  Process Name      Turnaround Time  # Faults  Fault Times
+1    Sample1/process1.txt 38               5         {0, 7, 16, 23, 30}
+2    Sample1/process2.txt 39               5         {0, 8, 17, 24, 31}
+3    Sample1/process3.txt 18               1         {0}
+4    Sample1/process4.txt 37               4         {0, 12, 19, 28}
+
+------------------------------------------------------------
+
+Clock - Fixed:
+PID  Process Name      Turnaround Time  # Faults  Fault Times
+1    Sample1/process1.txt 38               5         {0, 7, 16, 23, 30}
+2    Sample1/process2.txt 39               5         {0, 8, 17, 24, 31}
+3    Sample1/process3.txt 18               1         {0}
+4    Sample1/process4.txt 37               4         {0, 12, 19, 28}

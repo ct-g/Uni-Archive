@@ -1,0 +1,43 @@
+// Tests multiple scenarios
+// Processes arriving before, during and after a process is interrupted (Process 2,3,4)
+// Process falling to lowest priority queue in FB scheduling (Process 1)
+// More than 5 processes total
+// One process in wrong order in input file (Process 3)
+// Process arriving after all other processes have finished and cpu is idle (process 6)
+
+BEGIN
+
+DISP: 1
+END
+
+ID: p1
+Arrive: 1
+ExecSize: 30
+END 
+
+ID: p3
+Arrive: 5
+ExecSize: 24
+END 
+
+ID: p2
+Arrive: 4
+ExecSize: 2
+END 
+
+ID: p4
+Arrive: 6
+ExecSize: 7
+END 
+
+ID: p5
+Arrive: 14
+ExecSize: 9
+END 
+
+ID: p6
+Arrive: 120
+ExecSize: 2
+END 
+
+EOF

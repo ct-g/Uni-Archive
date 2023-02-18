@@ -1,0 +1,30 @@
+// Time  quantum of 1 is used in lecture slides
+BEGIN
+
+DISP: 0
+END
+
+ID: p1
+Arrive: 0
+ExecSize: 3
+END
+
+ID: p2
+Arrive: 2
+ExecSize: 6
+END
+
+ID: p3
+Arrive: 4
+ExecSize: 4
+END
+
+ID: p4
+Arrive: 6
+ExecSize: 5
+END
+
+ID: p5
+Arrive: 8
+ExecSize: 2
+END

@@ -1,0 +1,33 @@
+// Test that program ignores invalid processes
+BEGIN
+
+DISP: 1
+END
+
+ID: p1
+Arrive: 1
+ExecSize: 10
+END
+
+ID:
+Arrive:
+ExecSize:
+END
+
+ID: p3
+Arrive: 11
+ExecSize: 2
+END
+
+ID: p4
+Arrive: 0
+ExecSize: 0
+END
+
+ID: p5
+Arrive: 
+ExecSize: qwerty
+END
+
+
+EOF 

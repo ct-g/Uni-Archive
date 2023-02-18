@@ -1,0 +1,661 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{amsfonts}
+\usepackage{pifont}
+\usepackage{amsmath}
+\usepackage{epsfig}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{color}
+\usepackage{amscd}
+\usepackage{natbib}
+\usepackage{multirow}
+\usepackage{graphicx}
+\usepackage{lscape}
+\usepackage{float}
+\usepackage{bm}
+
+\usepackage[outputdir=build]{minted} % https://stackoverflow.com/questions/1966425/source-code-highlighting-in-latex#1985330
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% paper margins settings.
+\pagestyle{plain}  
+\oddsidemargin0cm
+\hoffset-1cm
+\voffset-0.5cm
+\topmargin-1.4cm 
+\textheight25cm \textwidth18cm \parindent0.5cm
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\setlength\parindent{0pt}
+
+\begin{document}
+
+\title{Assignment 2, MATH2800}
+\author{
+\ Conor Tumbers \qquad {\small c3190729@uon.edu.au}
+\\ {\small University of Newcastle}
+}
+
+\date{\today}
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%		One
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{1. DE System}
+
+\textbf{(a) $\alpha_0(t)$ \& $\alpha_1(t)$}
+
+By the Cayley-Hamilton Theorem, a matrix satisfies its own characteristic polynomial. As a result of this, $A$ satisfies
+\begin{align*}
+e^{At} = \alpha_0(t)I + \alpha_1(t)A
+\end{align*}
+and the eigenvalues of $A$ satisfy 
+\begin{align*}
+e^{\lambda t} = \alpha_0(t) + \alpha_1(t)\lambda
+\end{align*}
+
+where $\lambda$ is an eigenvalue of $A$.
+
+\begin{align*}
+A &= \begin{bmatrix}
+1 & 1 \\
+-1 & 3
+\end{bmatrix}
+\end{align*}
+
+\begin{align*}
+\det(A - \lambda I) &= (1 - \lambda)(3 - \lambda) + 1\\
+&= \lambda^2 - 4 \lambda + 4\\
+&= (\lambda - 2)^2
+\end{align*}
+
+Hence $A$ has an eigenvalue $\lambda = 2$ with algebraic multiplicity $2$.
+
+Since $\lambda$ occurs twice, it also satisfies the derivative of $e^{\lambda t}$ with respect to $\lambda$.
+
+\begin{align*}
+\frac{d}{d\lambda}e^{\lambda t} &= \alpha_1(t)\\
+te^{\lambda t} &= \alpha_1(t)
+\end{align*}
+
+Hence for $\lambda = 2$,
+
+\begin{align*}
+\alpha_1(t) = te^{2t}
+\end{align*}
+
+This can be used to find $\alpha_0(t)$.
+
+\begin{align*}
+e^{2 t} &= \alpha_0(t) + 2\alpha_1(t)\\
+\alpha_0(t) &= e^{2 t} - 2\alpha_1(t)\\
+&= (1 - 2t)e^{2t}
+\end{align*}
+
+\textbf{b. Solution}
+
+For problems of the form
+\begin{align*}
+\frac{dX}{dt} &= AX\\
+\end{align*}
+the solution is given by
+\begin{align*}
+X &= e^{At}X_0
+\end{align*}
+
+$e^{At}$ can be calculated using the results from \textbf{(a)}
+
+\begin{align*}
+e^{At} &=
+\begin{bmatrix}
+e^{2t} - 2te^{2t} & 0 \\
+0 & e^{2t} - 2te^{2t}
+\end{bmatrix} +
+\begin{bmatrix}
+te^2t & te^2t\\
+-te^2t & 3te^2t
+\end{bmatrix}\\
+&= \begin{bmatrix}
+1 - t & t \\
+-t & 1 + t
+\end{bmatrix} e^{2t}
+\end{align*}
+
+This gives the solution
+\begin{align*}
+X &= \begin{bmatrix}
+1 - t & t \\
+-t & 1 + t
+\end{bmatrix}\begin{bmatrix}
+x_0\\
+y_0
+\end{bmatrix}  e^{2t}
+\end{align*}
+
+\textbf{c. Initial Conditions}
+
+\begin{align*}
+X_0 &= \begin{bmatrix}
+0 \\
+1
+\end{bmatrix}\\
+\end{align*}
+Using these initial conditions gives the exact solution.
+\begin{align*}
+X &= \begin{bmatrix}
+1 - t & t \\
+-t & 1 + t
+\end{bmatrix}\begin{bmatrix}
+0 \\
+1
+\end{bmatrix} e^{2t}\\
+&= \begin{bmatrix}
+t\\
+1 + t
+\end{bmatrix} e^{2t}
+\end{align*}
+
+\textbf{d. Forcing Term}
+
+For systems of the form
+\begin{align*}
+\frac{dX}{dt} &= AX + F(t)\\
+\end{align*}
+the solution is given by
+\begin{align*}
+X &= e^{At}X_0 + e^{At} \int^t_0 e^{-As} F(s) ds
+\end{align*}
+
+The first term, $e^{At}X_0$, is given by the result in \textbf{(c)}.
+
+The integral in the second term can be calculated for the given $F(t) = \begin{bmatrix}-2 \\-1\end{bmatrix} e^{2t}$.
+
+\begin{align*}
+I &= \int^t_0 \begin{bmatrix}
+1 + s & -s\\
+s & 1 - s
+\end{bmatrix}\begin{bmatrix}
+-2\\
+-1
+\end{bmatrix} e^{-2s}e^{2s}ds\\
+&= \int^t_0 \begin{bmatrix}
+-2 - s \\
+-1 - s
+\end{bmatrix}ds\\
+&= \begin{bmatrix}
+-2s - \frac{1}{2}s^2 \\
+-s - \frac{1}{2}s^2
+\end{bmatrix}^t_0\\
+&= \begin{bmatrix}
+-2t - \frac{1}{2} t^2\\
+-t - \frac{1}{2} t^2
+\end{bmatrix}
+\end{align*}
+
+The second term in the solution for $X$ can then be found.
+\begin{align*}
+e^{At} \int^t_0 e^{-As} F(s) ds &= \begin{bmatrix}
+1 - t & t \\
+-t & 1 + t
+\end{bmatrix}\begin{bmatrix}
+-2t - \frac{1}{2} t^2\\
+-t - \frac{1}{2} t^2
+\end{bmatrix} e^{2t}\\
+&= \begin{bmatrix}
+-2t - \frac{1}{2}t^2 + 2t^2 + \frac{1}{2}t^3 - t^2 - \frac{1}{2}t^3\\
+2t^2 + \frac{1}{2}t^3 - t - \frac{1}{2}t^2 - t^2 - \frac{1}{2}t^3
+\end{bmatrix} e^{2t}\\
+&= \begin{bmatrix}
+-2t + \frac{1}{2}t^2\\
+-t + \frac{1}{2}t^2
+\end{bmatrix} e^{2t}
+\end{align*}
+
+The solution to the system of equations is then
+\begin{align*}
+X &= \left(\begin{bmatrix}
+t \\
+1 + t
+\end{bmatrix} +
+\begin{bmatrix}
+-2t + \frac{1}{2}t^2\\
+-t + \frac{1}{2}t^2
+\end{bmatrix}\right)e^{2t}\\
+&= \begin{bmatrix}
+-t + \frac{1}{2}\\
+1 + \frac{1}{2}
+\end{bmatrix} e^{2t}
+\end{align*}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%		Two
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\textbf{2. Approximate Solutions}
+
+\textbf{(a) Existence \& Uniqueness}
+
+The ODE can be rewritten as
+\begin{align*}
+f(t,y) &= \frac{dy}{dt}\\
+&= \frac{2\pi \sin(2\pi t - 2ty)}{2 + t^2}
+\end{align*}
+
+On the interval $t \in [0,5]$:
+\begin{align*}
+|f(t, y_1) - f(t, y_2)| &= |\frac{2\pi \sin(2\pi t) - 2ty_1 - 2\pi \sin(2\pi t) + 2ty_2}{2 + t^2}|\\
+&= |\frac{-2ty_1+2ty_2}{2+t^2}|\\
+&= \frac{2t}{2+t^2}|y_2 - y_1| \qquad (t \geq 0) \\
+&= \frac{2t}{2+t^2}|y_1 - y_2|\\
+&\leq L|y_1-y_2|
+\end{align*}
+
+Where $L$ is the maximum value attained by $\frac{2t}{2+t^2}$ on this interval.
+
+Hence $f(t,y)$ is Lipschitz continuous with respect to $y$.
+By the Picard-Lindelof Theorem, a unique solution exists for all $t\in [0, 5]$.
+
+\textbf{(b) Implementation \& Results}
+
+The numerical methods were implemented using SageMath. The implemented Euler's Method is included here. The full code is included in its own section at the end of this report.
+\begin{minted}[breaklines]{python}
+def Euler(f, h, y0, t0, tEnd):
+    y = y0
+    solution = [(t0, y0)]
+    
+    for t in srange(t0, tEnd, h):
+        y = N(y + h * f(t, y))
+        # Update t-value, restrict digits to prevent floating point inaccuracies from accumulating
+        t = N(t+h, digits=4)
+        solution.append((t, y))
+        
+    return solution
+\end{minted}
+
+The approximate values for $t$ are included in the following table, rounded to 5.d.p.
+\begin{center}
+\begin{tabular}{|l|r|r|r|r|}
+\hline
+t & h = 0.5 & h = 0.1 & h = 0.05 & h = 0.01\\
+\hline
+1 & 1.70993e-16 & -0.01526 & -0.00754 & -0.00148\\
+2 & 1.79375e-16 & -0.01164 & -0.00578 & -0.00144\\
+3 & 1.37753e-16 & -0.00735 & -0.00368 & -0.00073\\
+4 & 1.06258e-16 & -0.00482 & -0.00243 & -0.00049\\
+5 & 8.51430e-17 & -0.00334 & -0.00170 & -0.00034\\
+\hline 
+\end{tabular}
+\end{center}
+
+\textbf{(c) Exact Solution}
+
+The exact solution can be found by integrating both sides of the given ODE.
+\begin{align*}
+(2 + t^2)\frac{dy}{dt} + 2ty &= 2\pi \sin(2\pi t)\\
+\frac{d}{dt}[(2 + t^2)y] &= 2\pi \sin(2\pi t)\\
+(2 + t^2)y &= 2\pi \int\sin(2\pi t)\\
+&= -\frac{2\pi}{2\pi}\cos(2\pi t) + c\\
+y &= \frac{c}{2 + t^2} - \frac{\cos(2\pi t)}{2 + t^2}\\
+\end{align*}
+The initial condition $y(0) = 0$ gives $c = 1$.
+The exact solution is then
+\begin{align*}
+y &= \frac{1 - \cos(2\pi t)}{2 + t^2}
+\end{align*}
+
+For $t = 1,2,3,4,5$, $y(t)=0$.\\
+
+\textbf{(d) Plots}
+
+The following 4 figures show Euler's Method applied to the ODE with different $h$ values.
+In Figure \ref{figE0.5}, there are no oscillations. Euler's method approximates the slopes at $x_n$ and $x_n + h$ at each step. Since the slopes near all $x_n$ values used were close to zero, the approximated solution only contained values close to zero. Since the other step-sizes approximated slopes with values significantly different from zero, this did not occur.
+
+\begin{align*}
+y_1 = y_0 + h * f
+\end{align*}
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[]{Images/Euler5.png}}
+\caption{Euler's method with h = 0.5}\label{figE0.5}
+\end{figure}
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[]{Images/Euler1.png}}
+\caption{Euler's method with h = 0.1}\label{figE0.1}
+\end{figure}
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[]{Images/Euler05.png}}
+\caption{Euler's method with h = 0.01}\label{figE0.05}
+\end{figure}
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[]{Images/Euler01.png}}
+\caption{Euler's method with h = 0.05}\label{figE0.01}
+\end{figure}
+
+\textbf{(e) Local Truncation Error}
+
+The following table lists the Local Truncation Error for the four $h$ values used. The ratio value is given by
+\begin{align*}
+\frac{E_1(10h)}{E_1(h)}
+\end{align*}
+where $E_1$ is the error at step 1.
+
+It can be seen that each ratio is approximately $10^2$. This gives an LTE of $O(h^2)$ for Euler's Method.
+\begin{center}
+\begin{tabular}{|l|r|r|}
+\hline
+h & LTE & Ratio\\
+\hline
+0.1    & 0.09502 &  -\\
+0.01   & 0.00099 & 96.30826\\
+0.001  & 9.86957e-6 & 99.96249\\
+0.0001 & 9.86960e-8 & 99.99962\\
+\hline 
+\end{tabular}
+\end{center}
+
+\textbf{(f) Relative global Error}
+
+The following table gives the Relative Global Error for each step-size. The ratios are calculated similarly to the method in \textbf{(e)} but using the $E$ values at $t = 2.5$. The ratios are approximately $10^1$, except for the first ratio. This confirms that the Relative Global Error for Euler's Method is $O(h)$.
+\begin{center}
+\begin{tabular}{|l|r|r|}
+\hline
+h & Relative Global Error & Ratio\\
+\hline
+0.1    & 0.00869985 &  -\\
+0.01   & 0.00202522 & 4.29576\\
+0.001  & 0.00023059 & 8.78276\\
+0.0001 & 0.00002334 & 9.88001\\
+\hline 
+\end{tabular}
+\end{center}
+
+\textbf{(g) Heun's Method}
+
+\textbf{Implementation \& Results}
+
+The implementation of Heun's method is as follows. The complete program in which it is used is included at the end of this report.
+\begin{minted}[breaklines]{python}
+def Heun(f, h, y0, t0, tEnd):
+    y = y0
+    solution = [(t0, y0)]
+    
+    for t in srange(t0, tEnd, h):
+        k1 = f(t, y)
+        k2 = f (t + (2/3)*h, y + (2/3)*h*f(t,y))
+        y = N(y + (h/4)*(k1 + 3 * k2))
+        # Update t-value, restrict digits to prevent floating point inaccuracies from accumulating
+        t = N(t+h, digits=4)
+        solution.append((t, y))
+        
+    return solution
+\end{minted}
+
+\begin{center}
+\begin{tabular}{|l|r|r|r|r|}
+\hline
+t & h = 0.5 & h = 0.1 & h = 0.05 & h = 0.01\\
+\hline
+1 & -0.03534 & -0.00023 & -0.00003 & -2.28453e-7\\
+2 & -0.01210 & -0.00011 & -0.00001 & -1.15869e-7\\
+3 & -0.00321 & -0.00005 & -6.19459e-6 & -5.12454e-8\\
+4 & -0.00054 & -0.00002 & -2.98409e-6 & -2.51478e-8\\
+5 & -0.00028 & -0.00001 & -1.600246e-6 & -1.37432e-8\\
+\hline 
+\end{tabular}
+\end{center}
+
+\textbf{Plots}
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[]{Images/heun5.png}}
+\caption{Heun's method with h = 0.5}\label{figH0.5}
+\end{figure}
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[]{Images/heun1.png}}
+\caption{Heun's method  with h = 0.1}\label{figH0.1}
+\end{figure}
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[]{Images/heun05.png}}
+\caption{Heun's method with h = 0.05}\label{figH0.05}
+\end{figure}
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[]{Images/heun01.png}}
+\caption{Heun's method  with h = 0.01}\label{figH0.01}
+\end{figure}
+
+\textbf{Local Truncation Error}
+
+The Local Truncation Error values for the selected step-sizes are given below. The ratios are all approximately $10^4$, which gives $O(h^4)$. This does not match the expected value of $O(h^3)$, which suggests there is an error in the implementation.
+\begin{center}
+\begin{tabular}{|l|r|r|}
+\hline
+h & LTE & Ratio\\
+\hline
+0.1    & 0.00061 &  - \\
+0.01   & 6.34638e-8 & 9551.08\\
+0.001  & 6.34926e-12 & 9995.47\\
+0.0001 & 6.20478e-16 & 10232.85\\
+\hline 
+\end{tabular}
+\end{center}
+
+\textbf{Relative global Error}
+
+The following table gives the Relative Global Error values for Heun's Method. The latter two ratios are approximately $10^2$, which gives a relative global error of $O(h^2)$, as expected.
+\begin{center}
+\begin{tabular}{|l|r|r|}
+\hline
+h & Relative Global Error & Ratio\\
+\hline
+0.1    & 0.00062 &  - \\
+0.01   & 9.84321e-6 & 63.087\\
+0.001  & 1.01310e-7 & 97.158\\
+0.0001 & 1.01829e-9 & 99.490\\
+\hline 
+\end{tabular}
+\end{center}
+
+\textbf{Comparison}
+
+Heun's method attained a higher order as seen in both the Local Truncation Error and Relative Global Error results. However, the LTE result for Heun's method was not as expected and suggests that an error exists in the implementation.\\
+
+\textbf{Full Implementation}
+
+This implementation was made in Jupyter Notebook.
+
+\begin{minted}[breaklines]{python}
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+def Euler(f, h, y0, t0, tEnd):
+    y = y0
+    solution = [(t0, y0)]
+    
+    for t in srange(t0, tEnd, h):
+        y = N(y + h * f(t, y))
+        # Update t-value, restrict digits to prevent floating point inaccuracies from accumulating
+        t = N(t+h, digits=4)
+        solution.append((t, y))
+        
+    return solution
+
+
+# In[2]:
+
+
+def Heun(f, h, y0, t0, tEnd):
+    y = y0
+    solution = [(t0, y0)]
+    
+    for t in srange(t0, tEnd, h):
+        k1 = f(t, y)
+        k2 = f (t + (2/3)*h, y + (2/3)*h*f(t,y))
+        y = N(y + (h/4)*(k1 + 3 * k2))
+        # Update t-value, restrict digits to prevent floating point inaccuracies from accumulating
+        t = N(t+h, digits=4)
+        solution.append((t, y))
+        
+    return solution
+
+
+# In[3]:
+
+
+def Graph(approxSolution, exactSolution, t0, tEnd, title):
+    exactPlot = plot(exactSolution, t0, tEnd, rgbcolor = 'blue') # Exact plot
+    approxPlot= list_plot(approxSolution, plotjoined=False, color='red'); # Discrete approximation plot
+    show(exactPlot + approxPlot, title = title)
+
+
+# In[4]:
+
+
+# Set up ODE
+t = var('t')
+y = function('y')(t)
+f(t, y) = (2*pi*sin(2*pi*t) - 2*t*y) / (2 + t^2)
+t0 = 0.0 # ICs setup as floating point so that results can be printed at select t values correctly
+y0 = 0.0
+
+tEnd = 5
+
+
+# In[5]:
+
+
+# Verify exact solution
+y = function('y')(t)
+
+DE = diff(y, t) - f(t, y)
+exactSolution = desolve(DE, [y, t], ics=[t0, y0])
+print(exactSolution)
+
+
+# In[6]:
+
+
+# Produce Euler results
+step_values = [0.5, 0.1, 0.05, 0.01]
+results = []
+for h in step_values:
+    result = Euler(f, h, y0, t0, tEnd)
+    results.append(result)
+    Graph(result, exactSolution, t0, tEnd, 'Euler\'s Method with h = ' + h.str(truncate=True, skip_zeroes=True))
+    for (tn, yn) in result:
+        # Only print results for integer t values
+        # Since t is stored as a floating point, find t with very small component after decimal point
+        # to account for any floating point inaccuracies that may occur
+        if abs(tn - tn.integer_part()) < 0.0001:
+            print(tn, yn)
+
+
+# In[7]:
+
+
+# Absolute Local Truncation Error
+step_values = [0.1, 0.01, 0.001, 0.0001]
+solutions = []
+LTEs = []
+for step in step_values:
+    solutions.append(Euler(f, step, y0, t0, 2.5))
+    
+for sol, step_value in zip(solutions, step_values):
+    print(step_value, ":", abs(sol[1][1] - N(exactSolution(step_value))))
+    LTEs.append(abs(sol[1][1] - N(exactSolution(step_value))))
+    
+        
+for i in range(1, len(LTEs)):
+    ratio = LTEs[i - 1] / LTEs[i]
+    print(ratio)
+
+
+# In[8]:
+
+
+# Relative Global Error
+y_exact = N(exactSolution(2.5))
+print(2.5, y_exact)
+RGEs = []
+for sol, step_value in zip(solutions, step_values):
+    # Solutions ended at t = 2.5, take last tuple to get y at this t value
+    y_m = sol[-1][1]
+            
+    RGE = abs((y_m - y_exact) / y_exact)
+    RGEs.append(RGE)
+    print(step_value, y_m, RGE)
+    
+for i in range(1, len(RGEs)):
+    ratio = RGEs[i - 1] / RGEs[i]
+    print(ratio)
+
+
+# In[9]:
+
+
+# Produce Heun results
+step_values = [0.5, 0.1, 0.05, 0.01]
+for h in step_values:
+    result = Heun(f, h, y0, t0, tEnd)
+    Graph(result, exactSolution, t0, tEnd, 'Heun\'s Method with h = ' + h.str(truncate=True, skip_zeroes=True))
+    for (tn, yn) in result:
+        # Only print results for integer t values
+        # Since t is stored as a floating point, find t with very small component after decimal point
+        if abs(tn - tn.integer_part()) < 0.0001:
+            print(tn, yn)
+
+
+# In[10]:
+
+
+# Absolute Local Truncation Error
+step_values = [0.1, 0.01, 0.001, 0.0001]
+solutions = []
+LTEs = []
+for step in step_values:
+    solutions.append(Heun(f, step, y0, t0, 2.5))
+    
+for sol, step_value in zip(solutions, step_values):
+    print(step_value, ":", abs(sol[1][1] - N(exactSolution(step_value))))
+    LTEs.append(abs(sol[1][1] - N(exactSolution(step_value))))   
+        
+for i in range(1, len(LTEs)):
+    ratio = LTEs[i - 1] / LTEs[i]
+    print(ratio)
+
+
+# In[11]:
+
+
+# Relative Global Error
+y_exact = N(exactSolution(2.5))
+print(2.5, y_exact)
+RGEs = []
+
+for sol, step_value in zip(solutions, step_values):
+    # Solutions ended at t = 2.5, take last tuple to get y at this t value
+    y_m = sol[-1][1]
+            
+    RGE = abs((y_m - y_exact) / y_exact)
+    RGEs.append(RGE)
+    print(step_value, y_m, RGE)
+    
+for i in range(1, len(RGEs)):
+    ratio = RGEs[i - 1] / RGEs[i]
+    print(ratio)
+
+
+# In[ ]:
+\end{minted}
+
+\end{document} 

@@ -1,0 +1,10 @@
+\begin{tabular}{lrrr}
+\toprule
+{} &    Mum &  Father &  Total \\
+\midrule
+HighSchool   &   11.0 &    22.0 &   33.0 \\
+lowerlevel   &   84.0 &   115.0 &  199.0 \\
+MiddleSchool &  102.0 &   146.0 &  248.0 \\
+Total        &  197.0 &   283.0 &  480.0 \\
+\bottomrule
+\end{tabular}

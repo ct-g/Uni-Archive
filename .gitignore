@@ -1,0 +1,22 @@
+# https://stackoverflow.com/questions/19023550/how-do-i-add-files-without-dots-in-them-all-extension-less-files-to-the-gitign
+*
+!*/
+!*.*
+*.pdf
+*.class
+*.html
+*.xml
+*.iml
+*.zip
+*.png
+*.jpeg
+*.xls
+**/.idea
+**/out
+**/Submission
+**/.ipynb_checkpoints
+**/build
+**/results
+**/__pycache__
+**/resources
+**/Report

@@ -1,0 +1,19 @@
+\begin{tabular}{lrrr}
+\toprule
+{} &  Above-7 &  Under-7 &  Total \\
+\midrule
+Chemistry &     12.0 &     12.0 &   24.0 \\
+Math      &     10.0 &     11.0 &   21.0 \\
+Spanish   &      8.0 &     17.0 &   25.0 \\
+Biology   &      8.0 &     22.0 &   30.0 \\
+Quran     &      7.0 &     15.0 &   22.0 \\
+Science   &     23.0 &     28.0 &   51.0 \\
+Arabic    &     23.0 &     36.0 &   59.0 \\
+IT        &     45.0 &     50.0 &   95.0 \\
+Geology   &      6.0 &     18.0 &   24.0 \\
+History   &      9.0 &     10.0 &   19.0 \\
+French    &     21.0 &     44.0 &   65.0 \\
+English   &     19.0 &     26.0 &   45.0 \\
+Total     &    191.0 &    289.0 &  480.0 \\
+\bottomrule
+\end{tabular}

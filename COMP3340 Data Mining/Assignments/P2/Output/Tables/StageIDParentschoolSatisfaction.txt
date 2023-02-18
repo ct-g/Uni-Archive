@@ -1,0 +1,10 @@
+\begin{tabular}{lrrr}
+\toprule
+{} &   Good &    Bad &  Total \\
+\midrule
+HighSchool   &   19.0 &   14.0 &   33.0 \\
+lowerlevel   &  122.0 &   77.0 &  199.0 \\
+MiddleSchool &  151.0 &   97.0 &  248.0 \\
+Total        &  292.0 &  188.0 &  480.0 \\
+\bottomrule
+\end{tabular}

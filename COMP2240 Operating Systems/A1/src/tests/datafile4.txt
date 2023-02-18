@@ -1,0 +1,24 @@
+// Test first process arriving after some time has elapsed
+// Test invalid dispatcher time
+BEGIN
+
+DISP: aeiou
+END
+
+ID: p1
+Arrive: 5
+ExecSize: 10
+END
+
+ID: p2
+Arrive: 10
+ExecSize: 1
+END
+
+ID: p3
+Arrive: 15
+ExecSize: 2
+END
+
+EOF
+ 

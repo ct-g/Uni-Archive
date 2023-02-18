@@ -1,0 +1,21 @@
+\begin{tabular}{lrrr}
+\toprule
+{} &   Good &    Bad &  Total \\
+\midrule
+venzuela    &    1.0 &    0.0 &    1.0 \\
+Morocco     &    1.0 &    3.0 &    4.0 \\
+KW          &   89.0 &   90.0 &  179.0 \\
+Lybia       &    6.0 &    0.0 &    6.0 \\
+Palestine   &   28.0 &    0.0 &   28.0 \\
+Egypt       &    7.0 &    2.0 &    9.0 \\
+Tunis       &    5.0 &    7.0 &   12.0 \\
+Iraq        &   22.0 &    0.0 &   22.0 \\
+Syria       &    5.0 &    2.0 &    7.0 \\
+Iran        &    3.0 &    3.0 &    6.0 \\
+lebanon     &   10.0 &    7.0 &   17.0 \\
+SaudiArabia &    4.0 &    7.0 &   11.0 \\
+Jordan      &  106.0 &   66.0 &  172.0 \\
+USA         &    5.0 &    1.0 &    6.0 \\
+Total       &  292.0 &  188.0 &  480.0 \\
+\bottomrule
+\end{tabular}

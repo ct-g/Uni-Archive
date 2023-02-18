@@ -1,0 +1,9 @@
+\begin{tabular}{lrrrr}
+\toprule
+{} &  HighSchool &  lowerlevel &  MiddleSchool &  Total \\
+\midrule
+M     &        18.0 &       121.0 &         166.0 &  305.0 \\
+F     &        15.0 &        78.0 &          82.0 &  175.0 \\
+Total &        33.0 &       199.0 &         248.0 &  480.0 \\
+\bottomrule
+\end{tabular}

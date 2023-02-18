@@ -1,0 +1,9 @@
+\begin{tabular}{lrrr}
+\toprule
+{} &    Mum &  Father &  Total \\
+\midrule
+M     &  103.0 &   202.0 &  305.0 \\
+F     &   94.0 &    81.0 &  175.0 \\
+Total &  197.0 &   283.0 &  480.0 \\
+\bottomrule
+\end{tabular}

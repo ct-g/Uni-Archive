@@ -1,0 +1,21 @@
+\begin{tabular}{lrrr}
+\toprule
+{} &  Above-7 &  Under-7 &  Total \\
+\midrule
+venzuela    &      0.0 &      1.0 &    1.0 \\
+Morocco     &      1.0 &      3.0 &    4.0 \\
+KW          &     80.0 &     99.0 &  179.0 \\
+Lybia       &      6.0 &      0.0 &    6.0 \\
+Palestine   &      2.0 &     26.0 &   28.0 \\
+Egypt       &      5.0 &      4.0 &    9.0 \\
+Tunis       &      4.0 &      8.0 &   12.0 \\
+Iraq        &      6.0 &     16.0 &   22.0 \\
+Syria       &      3.0 &      4.0 &    7.0 \\
+Iran        &      4.0 &      2.0 &    6.0 \\
+lebanon     &      2.0 &     15.0 &   17.0 \\
+SaudiArabia &      4.0 &      7.0 &   11.0 \\
+Jordan      &     73.0 &     99.0 &  172.0 \\
+USA         &      1.0 &      5.0 &    6.0 \\
+Total       &    191.0 &    289.0 &  480.0 \\
+\bottomrule
+\end{tabular}

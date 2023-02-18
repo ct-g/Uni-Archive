@@ -1,0 +1,18 @@
+// Test dispatcher rule (iii)
+
+BEGIN
+
+DISP: 1
+END
+
+ID: p1
+Arrive: 0
+ExecSize: 10
+END
+
+ID: p2
+Arrive: 12
+ExecSize: 5
+END
+
+EOF

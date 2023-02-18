@@ -1,0 +1,2247 @@
+\documentclass[11pt, a4paper]{article}
+
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{graphicx}
+\usepackage[outputdir=build]{minted} % https://stackoverflow.com/questions/1966425/source-code-highlighting-in-latex#1985330
+\usepackage{pdflscape}
+
+\title{\vspace{-2.0cm} COMP3340 Assignment 1 Part 3}
+\date{11th November 2020}
+\author{Conor Tumbers \\ c3190729@uon.edu.au}
+
+\begin{document}
+\maketitle 
+
+\section{Introduction}
+The Exercises were completed using Python and Weka. The implementation of algorithms can be found at the end of the report.
+
+\section{Exercise 1}
+The yacht hydrodynamics dataset was used for this exercise. This dataset has been previously used in research by Ortigosa, et al. (2007) and was found using the UCI Machine Learning Repository (Dua \& Graff, 2019). It has 308 instances and 7 attributes; this is a relatively small dataset that the implemented algorithm could operate on in a short time frame. The Relative Neighbourhood Graph was produced for both the instances and the attributes. The implementation was based on the algorithm given in the notes by Mathieson \& Moscato (2017). Due to the large amount of instances, the graph produced was too large for this report, regardless of layout. The full graph can be found in the Results section. The local neighbourhood of four arbitrarily selected instances can be seen in Fig.~\ref{fig1a}.
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[scale=0.5]{yacht-inst-rng-local.png}}
+\caption{The local neighbourhood of four instances in the RNG}\label{fig1a}
+\end{figure}
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[scale=0.5]{yacht-attr-rng.png}}
+\caption{Relative Neighbourhood Graph for dataset attributes}\label{fig1b}
+\end{figure}
+
+\section{Exercise 2}
+The customer churn dataset previously used in a paper by Obiedat et al. (2013) was used for this discretisation process. Before feature selection, the dataset was preprocessed. The Phone attribute was removed as it was a unique identifier for each instance. Three categorical attributes were converted to integer labels: Int'l Plan, VMail Plan and State.
+
+The training set was normalised using min-max normalisation. This uses the smallest and largest values of an attribute to scale all of its values to the range [0, 1] (Moreira et al., 2018). The min and max for each attribute prior to normalisation was stored. The normalised training set was then discretised using the Fayyad-Irani method. This was implemented based on an online resource (Meurer, 2015) with the minimum information gain threshold calculation from the paper by Fayyad \& Irani (1993).
+
+This process works by determining all possible points in the attributes range to split it at. A measure of information gain is used to determine which point is the best to split at. The attributes values are then divided into two sets at this point and each of these two sets are then operated on similarly. This continues until the information gain is below some threshold. All split points are stored for later usage on the test set.
+
+The stored min and max values for the training data are then used to normalise the test set. This normalised test set is then discretised using the stored split points.
+
+The discretisation resulted in some attributes having only a single integer label. This suggests these attributes have little relevance to the classification task and were discarded. The four categorical attributes were kept. These could also be reduced using another method, such as finding the chi-squared values of each attribute to determine its quality. The initial dataset had 21 attributes which was reduced to 11.
+
+\section{Exercise 3}
+The k-feature set problem has a set $X$ of $m$ examples with $n$ attributes and a class attribute, $t$. Each instance can be described by a vector $x^{(i)} = \{{x_1}^{(i)}, {x_2}^{(i)}, ..., {x_n}^{(i)}, t^{(i)}\}$, where $i$ is the index of the instance. For a binary classification problem with binary attributes, $x^{(i)} \in \{0, 1\}^{n+1}$. For some integer $k > 0$, does there exist a set of attributes $S \subseteq \{0, 1, ..., n\}$ such that $|S| = k$ and for all pairs of instances, with indices $i \neq j$, if $t^{(i)} \neq t^{(j)}$ then for some $l \in S$, ${x_l}^{(i)} \neq {x_l}^{(j)}$	 (Moscato \& de Vries, 2020)? In other words, a reduced feature set is a k-feature set if for any two instances of different classes, at least one feature in this feature set is not equivalent.
+
+The following example dataset has a 3-feature set: \{attr1, attr2, attr3\}. Each instance has a unique 3-bit string using these attributes, therefore this feature set describes the dataset. The problem is not linearly separable, this can be seen using the 3-feature set: a 3-bit string can represent coordinates in 3D space, these coordinates give corners on a cube (but not all corners are in this dataset). It is not possible to give a single plane that separates the positive instances from the negative ones.
+
+Additionally, any pairing of attributes in this dataset does not fully describe it; a 2-feature set does not exist. This dataset was created by starting with four instances that were not linearly separable given 3 features. Two additional features and instances were added to prevent the existence of a 2-feature set.
+
+\begin{center}
+\begin{tabular}{|l|r|r|r|r|r|r|}
+\hline
+    & attr1 & attr2 & attr3 & attr4 & attr5 & Class\\
+\hline
+inst1 & 0 & 0 & 0 & 1 & 1 & Yes\\
+\hline
+inst2 & 1 & 1 & 1 & 1 & 0 & Yes\\
+\hline
+inst3 & 1 & 1 & 0 & 1 & 1 & Yes\\
+\hline
+inst4 & 0 & 1 & 1 & 1 & 0 & No\\
+\hline
+inst5 & 1 & 0 & 0 & 1 & 1 & No\\
+\hline
+inst6 & 0 & 0 & 1 & 1 & 1 & No\\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Exercise 4}
+For a binary classification dataset, there is a finite alphabet $\sum$ and a string length $n$, equivalent to the amount of non-class attributes. There are two subsets of the dataset, a set of positive instances and a set of negative instances: $Good$ and $Bad$. For some integer $l > 0$, does there exist a set of patterns $P$ such that $|P| \leq l$ and that $P\rightarrow(Good, Bad)$; where "$\rightarrow$" denotes compatibility between the set of patterns and the sets of examples (Moscato \& de Vries, 2020).
+
+A pattern is a string $p \in \sum^n \cup \{*\}$ where $*$ denotes a wildcard operator. A pattern is compatible with a string if for every character with the same index, the characters are equivalent or one is the wildcard. A set of patterns is compatible with $(Good, Bad)$ if for all strings $g \in Good$, there exists a pattern in $P$ compatible with $g$. All such patterns are not compatible with any pattern $b \in Bad$ (Moscato \& de Vries, 2020).
+
+The following example dataset can be classified using 4-patterns. These four patterns were created first then used to fill out the dataset. No solution of only 3-patterns exists: 1 pattern is needed for the negative class and 1 pattern is sufficient. The positive class can only be defined by at least 3 patterns. A potential 2-pattern solution for the positive class clashes with an instance in the negative class: \{**rr**, rg*****\}.
+
+\begin{center}
+Positive =  \{rgbbrr, rg**bb, b*rr**\}\\
+Negative = \{**rb**\}
+\end{center}
+
+\begin{center}
+\begin{tabular}{|l|r|r|r|r|r|r|r|}
+\hline
+& attr1	& attr2	& attr3	& attr4	& attr5	& attr6	& Class\\
+\hline
+inst1 & r & g & b & b & r & r & Positive\\
+\hline
+inst2 & r & g & g & r & b & b & Positive\\
+\hline
+inst3 & b & b & r & r & r & r & Positive\\
+\hline
+inst4 & b & g & r & r & b & b & Positive\\
+\hline
+inst5 & r & g & r & r & b & b & Positive\\
+\hline
+inst6 & b & r & r & b & g & g & Negative\\
+\hline
+inst7 & r & b & r & b & b & b & Negative\\
+\hline
+inst8 & r & g & r & b & r & g & Negative\\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Exercise 5}
+The Alzheimer's dataset (Ray et al., 2007) was used for this clustering exercise. The Euclidean distance was used as a dissimilarity measure. The implementation of the graph algorithms was based on the notes by Mathieson \& Moscato (2017). The MST-KNN clustering resulted in 9 clusters using a k value of 2. It can be seen that each cluster contains significantly more of one class than the other.
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[scale=0.5]{alzheimersMST-KNN.png}}
+\caption{MST-KNN clusters for the Alzheimer's dataset}\label{fig5a}
+\end{figure}
+
+\section{Exercise 6}
+The second clustering method used was k-means clustering. k was set to 9 for the purposes of producing the same amount of clusters found in Exercise 5. The raw clustering output can be found in the Results sections.
+
+Inter-rater reliability methods measure the agreement between raters; examples of such methods include Scott's Pi, Cohen's Kappa and Fleiss' Kappa (de Vries et al., 2017). In this case, the two raters is one of the clustering methods and the ground truth. Since only two raters will be compared at a time, Fleiss' Kappa is not an appropriate measure. Cohen's Kappa was used as it does not make any assumptions about the expected distribution of categories (Cohen, 1960). The calculation of Cohen's Kappa was retrieved from a paper by McHugh (2012).
+
+The ground truth was constructed to be two clusters with each containing the entirety of one class. To compute Cohen's Kappa, contingency tables were constructed by comparing this ground truth to each clustering result. The table setup was based on the notes by de Vries et al. (2017). The first table shows the agreement between the ground truth and the MST-KNN clustering, with a result of $\kappa = 0.204$. The second table shows the agreement between the ground truth and the k-means clustering, with a result of $\kappa = 0.021$.
+
+\begin{center}
+\begin{tabular}{|r|r|}
+\hline
+502 & 1181\\
+\hline
+164 & 1556\\
+\hline
+\end{tabular}
+\qquad
+\begin{tabular}{|r|r|}
+\hline
+303 & 1380\\
+\hline
+273 & 1447\\
+\hline
+\end{tabular}
+\end{center}
+
+The Cohen's Kappa value was significantly greater for the MST-KNN clustering. This reflects the quality of the clustering by visual inspection, as the MST-KNN had each cluster dominated by a class. This was not the case for the k-means clustering.
+
+\section{Exercise 7}
+Lazy classification is the process of storing the training data and simply comparing any new instances to this training data to find which class of instances it is most similar to (Moreira et al., 2018). These classifiers do not require any training to build a model. An example of a lazy-classifier is the k-nearest neighbours classifier; it compares a new instance to the k-nearest instances and assigns it the most common class from these k-neighbours.
+
+A problem has imbalanced classes when there is a significant difference in the amount of each class. An overrepresented class may bias a classifier towards it or prevent the classifier from being trained correctly. For example, if a binary classification task had 90\% of its instances in one class, then a classifier could attain 90\% accuracy by labelling all instances as these class.
+
+Six confusion matrices were made to demonstrate the application of performance measures. The first five tables use a balanced dataset of 25 positive classes and 25 negative classes. The final table uses an imbalanced dataset of 40 positive classes and 10 negative classes to demonstrate the effect imbalance has on these measures. A result of 0.8 for any measure is deemed good in this set of examples but this is not necessarily true for a real world task. Calculations for sensitivity, specificity and accuracy were done using the formulas given in the textbook by Moreira et al. (2018). The Matthew's Correlation Coefficient (MCC) was based on the formula in a paper by Chicco \& Jurman (2020).
+
+The following two tables both have a sensitivity of 0.8. The first table has an MCC of 0.56 and the second of -0.05. It can be seen that despite both have high specificity values, this metric alone does not necessarily reflect good performance as the second table shows a classifier biased towards the positive class.
+\begin{center}
+\begin{tabular}{|r|r|}
+\hline
+20 & 6\\
+\hline
+5 & 19\\
+\hline
+\end{tabular}
+\qquad
+\begin{tabular}{|r|r|}
+\hline
+20 & 21\\
+\hline
+5 & 4\\
+\hline
+\end{tabular}
+\end{center}
+
+This is also the case for specificity. The following two tables are similar to the last two, but the values have been rearranged such that the specificity of both is 0.8. The MCC values are once again 0.56 and -0.05 respectively. Using specificity in combination with sensitivity will give a better measure of performance than using either one alone.
+
+\begin{center}
+\begin{tabular}{|r|r|}
+\hline
+19 & 5\\
+\hline
+6 & 20\\
+\hline
+\end{tabular}
+\qquad
+\begin{tabular}{|r|r|}
+\hline
+4 & 5\\
+\hline
+21 & 20\\
+\hline
+\end{tabular}
+\end{center}
+
+The following two tables both have an accuracy of 0.8. However, the second table has an imbalanced dataset and the classifier is simply labelling all instances as positive. This gives the classifier what would appear to be decent performance despite it having not learning any patterns in the dataset. Additionally, this imbalanced matrix has a sensitivity of 1, and a specificity \& MCC of 0. The MCC consistently reflects the overall performance of these example classifier results.
+
+\begin{center}
+\begin{tabular}{|r|r|}
+\hline
+21 & 3\\
+\hline
+4 & 22\\
+\hline
+\end{tabular}
+\qquad
+\begin{tabular}{|r|r|}
+\hline
+40 & 10\\
+\hline
+0 & 0\\
+\hline
+\end{tabular}
+\end{center}
+
+\section{Exercise 8}
+%TODO better visualisation of datasets
+The Alzhiemer's dataset was used once again so that the previous clustering results could be compared to a new third clustering approach. Hierarchical clustering was implemented. Two types of hierarchical clustering were implemented; agglomerative with single linkage and agglomerative with average linkage. The single linkage approach was the initial implementation, but the results were poor, so a different linkage method was trialled. The raw clustering output can be found in the Results section. The agglomerative clustering algorithm was based on an online resource by Yudha Wijaya (2019). The average linkage method was based on a paper by Yim \& Ramdeen (2015).
+
+Calculating the Cohen's Kappa values as before, the single linkage clustering achieved $\kappa = 0.025$ and the average linkage achieved $\kappa = 0.038$. While the average linkage was better than the single linkage, neither agglomerative clustering approach achieved a better result than that of the MST-KNN clustering.
+
+The MST-KNN provides a clustering where each cluster is dominated by one class. This was not the case for the other two methods. However, some of the smaller clusters in the k-means clustering and agglomerative clustering were dominated by a class. For these two methods, the k value was set to 9 to produce the same amount of clusters as the MST-KNN. A different k value may produce a better clustering result.
+
+Yim \& Ramdeen (2015) describe the concept of "chaining" in which the usage of single linkage may result in nearby clusters being merged and resulting in a single large cluster. This reflects what occurred with single linkage and this dataset. Implementing average linkage resulted in a clustering that did not have this effect.
+
+\section{Exercise 9}
+\subsection{Part a.}
+
+The US presidency dataset was loaded into Weka and converted into .arff format. These file was then edited with a text editor to replace the nominal attribute label with a binary domain. In the attribute values, "0" was replaced with "?", except for the class attribute. This dataset was then divided into two separate .arff files as per the Exercise requirements; one for Incumbent class instances and another for Challenger class instances. Confidence and lift values were calculated using the formulas from the textbook by Moreira et al. (2018). The output from Weka has been included in the Results section.
+
+For the Incumbent dataset, the largest itemset found by Weka had 3 items: \{Q2, Q5, Q7\}. The confidence and lift values (to 2 d.p.) for the top 3 associations rules were as follows:
+
+\begin{itemize}
+\item \{Q2, Q7\}
+	\subitem Confidence = 0.83
+	\subitem Lift = 1.25
+\item \{Q2, Q5\}
+	\subitem Confidence = 0.75
+	\subitem Lift = 1.125
+\item \{Q5, Q7\}
+	\subitem Confidence = 0.64
+	\subitem Lift = 0.83
+\end{itemize}
+
+Similarly, the Challenger dataset's largest itemset had 2 items. There were multiple such itemsets, with the most frequent one being: {Q1, Q4}. The measures (to 2 d.p.) for the top 3 association rules were as follows:
+
+\begin{itemize}
+\item \{Q1, Q4\}
+	\subitem Confidence = 0.8
+	\subitem Lift = 1.04
+\item \{Q1, Q2\}
+	\subitem Confidence = 0.6
+	\subitem Lift = 0.78
+\item \{Q4, Q7\}
+	\subitem Confidence = 0.5
+	\subitem Lift = 0.65
+\end{itemize}
+
+\subsection{Part b.}
+
+The following two examples step through the Apriori algorithm outlined in the textbook by Moreira et al. (2018).
+
+For a minimum support threshold of 60\%, the Apriori algorithm would first consider all itemsets of size 1. When operating on the incumbent victory set, this process will find 4 such itemsets: \{Q2\}, \{Q5\}, \{Q7\} \&\{Q8\}. These all have more than 11 occurrences, which is the smallest integer greater than 60\% of 18, the amount of instances.
+
+Since more than two itemsets were found, the algorithm repeats this process for all itemsets of size 2. Only frequent itemsets are considered; pairings of the four found in the prior stage. No pairing has a support above the threshold of 60\%. The algorithm terminates here and returns the four itemsets found.
+
+Similarly, when operating on the challenger victory set, an occurrence of at least 8 is needed to surpass the minimum support threshold. On the first iteration, looking for itemsets of size 1, two are found: \{Q1\} \& \{Q4\}. Since at least two were found, itemsets of size two are considered. Only one such itemset is considered frequent, \{Q1, Q2\}. This itemset has 8 occurrences and as such is above the threshold. However, since only one itemset was found during this iteration, the process terminates and returns the 3 itemsets found.
+
+\section{Exercise 10}
+%TODO consider approaching this question from another angle, current approach gets results in a way that seems against what the question intends
+
+SVMs can classify non-linearly separable datasets by mapping the data to higher-dimensional spaces where such a separation exists (Moreira et al., 2018). If a non-linearly separable dataset can be classified with an SVM with 100\% accuracy, then there exists some additional feature(s) that can be added to make this dataset linearly separable.
+
+An SVM was trained on the full dataset to see if this was the case. A gridsearch was used to find suitable parameters for the classifier. The classifier successfully achieved a 100\% accuracy rating. Therefore it is possible to make this dataset linearly separable by engineering features. Initially, attempts were made to engineer a new feature based on the common attributes in the Apriori exercise; these attempts were unsuccessful. However, the kernel found to be optimal by the gridsearch was the linear kernel. SVMs require a non-linear kernel to classify non-linearly separable datasets or a soft margin; such a margin  would not achieve 100\% accuracy (Chen, 2019). Hence the linear kernel can only achieve this accuracy on datasets that are already linearly separable.
+
+The coefficients of the separating hyperplane were accessed from the trained SVM. The coefficient for the attribute Q11 was zero, so this dataset could be reduced by removing this attribute and still remain linearly separable. Inputting the instances into the hyperplane's formula results in a positive value for incumbent class instances and a negative value otherwise. These resultant values and the coefficients can be found in the Results section.
+
+\section{Exercise 11}
+%TODO https://github.com/Waikato/weka-3.8/blob/068bb260f5e2ce42d46e0de043338cf34dcb21a8/weka/src/main/java/weka/classifiers/trees/RandomTree.java
+% investigate source code to better understand algorithm in use
+%TODO code instead of Weka if time permits
+
+The Weka RandomTree decision tree induction algorithm was used for this dataset. This tree was generated using Weka. A k value of four was used; when generating a node, four random attributes were considered.
+
+Each leaf node shows how many instances get classified at that point and the class of such instances. For example, for the instance of 1932, it takes the left path at the first node. Then it takes the left branch for the node of Q7, followed by a right for Q6 and then a left for Q8, arriving at node 8, a leaf for the challenger victory class.
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[scale=0.7]{decisionTree.png}}
+\caption{Decision tree for the US Presidency dataset}\label{fig11}
+\end{figure}
+
+\section{Exercise 12}
+\subsection{Part a.}
+Cross-validation is a technique used when training classifiers. The set of examples is divided into two subsets, one for training and one for validation; this is repeated multiple times to generate distinct training/validation set pairs (Moreira et al., 2018). An instance that is used in the training portion in multiple occasions may be in the validation portion for others. During training, the training set is used to modify classifier performance and the validation set to measure the change in performance. Each iteration of the training algorithm uses a different training/validation pair. This can improve the performance of the final classifier model without requiring extra data to be collected.
+
+\subsection{Part a.}
+Bootstrapping is another approach maximise the effectiveness of available data. The examples are again used to generate multiple training sets and corresponding validation sets. Each training set is the same size as the set of all examples, but some values are duplicated and overwrite other values; the overwritten values then form the validation set for that partition (Moreira et al., 2018). Once again, training uses one training set and corresponding validation set to change then measure classifier performance each iteration.
+
+\subsection{Part c.}
+Imputation is the act of replacing missing values in a dataset. A common approach is to simply input the average attribute value, however depending on how much data is missing, this can negatively bias the classifier (Somasundaram \& Nedunchezhian, 2011). Some classifiers cannot handle missing data values or these missing values may greatly impact performance, hence the need for imputation.
+
+\section{Results}
+
+\subsection{Exercise 1}
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[scale=0.08]{yacht-inst-rng.png}}
+\caption{Relative Neighbourhood Graph for yacht dataset instances}\label{figR1}
+\end{figure}
+
+\subsection{Exercise 6}
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[scale=0.5]{k-meansClustering.png}}
+\caption{k-means clusters for the Alzheimer's dataset}\label{figR6}
+\end{figure}
+
+\subsection{Exercise 8}
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[scale=0.5]{linkagesingle.png}}
+\caption{Agglomerative clustering with single linkage for the Alzheimer's dataset}\label{figR8a}
+\end{figure}
+
+\begin{figure}[H]
+\makebox	[\textwidth][c]{\includegraphics[scale=0.5]{linkageaverage.png}}
+\caption{Agglomerative clustering with average linkage for the Alzheimer's dataset}\label{figR8b}
+\end{figure}
+
+\subsection{Exercise 9}
+Incumbent Apriori results:
+\begin{verbatim}
+=== Run information ===
+
+Scheme:       
+weka.associations.Apriori
+-I -N 10 -T 0 -C 0.9 -D 0.05 -U 1.0 -M 0.1 -S -1.0 -A -c -1
+
+Relation:     USPresidency-weka.filters.unsupervised.attribute.Remove-R1
+Instances:    18
+Attributes:   13
+              Q1
+              Q2
+              Q3
+              Q4
+              Q5
+              Q6
+              Q7
+              Q8
+              Q9
+              Q10
+              Q11
+              Q12
+              Target
+=== Associator model (full training set) ===
+
+
+Apriori
+=======
+
+Minimum support: 0.4 (7 instances)
+Minimum metric <confidence>: 0.9
+Number of cycles performed: 12
+
+Generated sets of large itemsets:
+
+Size of set of large itemsets L(1): 5
+
+Large Itemsets L(1):
+Q1=1 9
+1  9
+Q2=1 12
+1  12
+Q5=1 14
+1  14
+Q7=1 12
+1  12
+Q8=1 11
+1  11
+
+Size of set of large itemsets L(2): 5
+
+Large Itemsets L(2):
+Q1=1 Q2=1 8
+1  8
+Q2=1 Q5=1 9
+1  9
+Q2=1 Q7=1 10
+1  10
+Q5=1 Q7=1 9
+1  9
+Q5=1 Q8=1 8
+1  8
+
+Size of set of large itemsets L(3): 1
+
+Large Itemsets L(3):
+Q2=1 Q5=1 Q7=1 8
+1  8
+
+Best rules found:
+
+ 1. Q5=1 14 ==> Target=1 14    conf:(1)
+ 2. Q2=1 12 ==> Target=1 12    conf:(1)
+ 3. Q7=1 12 ==> Target=1 12    conf:(1)
+ 4. Q8=1 11 ==> Target=1 11    conf:(1)
+ 5. Q2=1 Q7=1 10 ==> Target=1 10    conf:(1)
+ 6. Q1=1 9 ==> Target=1 9    conf:(1)
+ 7. Q2=1 Q5=1 9 ==> Target=1 9    conf:(1)
+ 8. Q5=1 Q7=1 9 ==> Target=1 9    conf:(1)
+ 9. Q1=1 Q2=1 8 ==> Target=1 8    conf:(1)
+10. Q5=1 Q8=1 8 ==> Target=1 8    conf:(1)
+\end{verbatim}
+Challenger Apriori results:
+\begin{verbatim}
+=== Run information ===
+
+Scheme:
+weka.associations.Apriori
+-I -N 10 -T 0 -C 0.9 -D 0.05 -U 1.0 -M 0.1 -S -1.0 -A -V -c -1
+
+Relation:     USPresidency-weka.filters.unsupervised.attribute.Remove-R1
+Instances:    13
+Attributes:   13
+              Q1
+              Q2
+              Q3
+              Q4
+              Q5
+              Q6
+              Q7
+              Q8
+              Q9
+              Q10
+              Q11
+              Q12
+              Target
+=== Associator model (full training set) ===
+
+
+Apriori
+=======
+
+Minimum support: 0.35 (5 instances)
+Minimum metric <confidence>: 0.9
+Number of cycles performed: 13
+
+Generated sets of large itemsets:
+
+Size of set of large itemsets L(1): 9
+
+Large Itemsets L(1):
+Q1=1 10
+0  10
+Q2=1 6
+0  6
+Q3=1 5
+0  5
+Q4=1 10
+0  10
+Q5=1 5
+0  5
+Q6=1 6
+0  6
+Q7=1 5
+0  5
+Q9=1 7
+0  7
+Q12=1 5
+0  5
+
+Size of set of large itemsets L(2): 5
+
+Large Itemsets L(2):
+Q1=1 Q2=1 6
+0  6
+Q1=1 Q4=1 8
+0  8
+Q1=1 Q9=1 5
+0  5
+Q4=1 Q7=1 5
+0  5
+Q4=1 Q9=1 5
+0  5
+
+Best rules found:
+
+ 1. Q1=1 10 ==> Target=0 10    conf:(1)
+ 2. Q4=1 10 ==> Target=0 10    conf:(1)
+ 3. Q1=1 Q4=1 8 ==> Target=0 8    conf:(1)
+ 4. Q9=1 7 ==> Target=0 7    conf:(1)
+ 5. Q2=1 6 ==> Target=0 6    conf:(1)
+ 6. Q6=1 6 ==> Target=0 6    conf:(1)
+ 7. Q1=1 Q2=1 6 ==> Target=0 6    conf:(1)
+ 8. Q3=1 5 ==> Target=0 5    conf:(1)
+ 9. Q5=1 5 ==> Target=0 5    conf:(1)
+10. Q7=1 5 ==> Target=0 5    conf:(1)
+\end{verbatim}
+
+\subsection{Exercise 10}
+Coefficients for each attribute:
+\begin{center}
+\begin{tabular}{|l|r|r|r|r|r|}
+\hline
+Q1 & Q2 & Q3 & Q4 & Q5 & Q6\\
+\hline
+-0.40007606 & 0.26678712 & -1.13328149 & -1.33315633 & 0.13354116 & -0.8661906\\
+\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular}{|r|r|r|r|r|r|}
+\hline
+Q7 & Q8 & Q9 & Q10 & Q11 & Q12\\
+\hline
+0.60017033 & 1.26629517 & -1.26562514 & -0.53381404 & 0 & -0.86723862\\
+\hline
+\end{tabular}
+\end{center}
+Incumbent instances:
+\begin{verbatim}
+0.13421119
+0.46755142
+0.60042255
+0.13323311
+0.13354116
+0.13325999
+0.60042255
+0.26681563
+1.39983633
+0.59969825
+0.46688139
+1.40060318
+1.00052712
+1.86671772
+0.1332659
+1.00049861
+0.73371149
+0.13421119
+\end{verbatim}
+Challenger instances:
+\begin{verbatim}
+-3.53196869
+-2.86644991
+-2.3986872
+-1.86630892
+-2.1986769
+-1.86601527
+-2.59875296
+-2.99880214
+-3.13428505
+-1.86671816
+-1.9988864
+-1.86671815
+-3.99996959
+\end{verbatim}
+
+\section{Code}
+\subsection{Exercise 1 Notebook}
+\begin{minted}[breaklines]{python}
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+# Exercise 1
+
+
+# In[2]:
+
+
+import math
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
+import os
+import pandas as pd
+
+import distance as dis
+import dtransform as dt
+import subgraphs as sg
+
+
+# In[3]:
+
+
+titles = ["Bouyancy Position", "Prismatic Coefficient", "Length-Displacement Ratio",           "Beam-Drought Ratio", "Length-Beam Ratio", "Froude Number", "Residuary Resistance"]
+
+# Use python engine so that a delimieter with regex can be used
+# The data file separates values with more than one space in some instances
+yacht_data = pd.read_csv("datasets/yacht_hydrodynamics.data", delimiter=" +", engine='python', names=titles)
+yacht_data.head()
+
+
+# In[4]:
+
+
+# Normalise data
+for _, attr in yacht_data.items():
+    dt.normalise(attr)
+    
+yacht_data.head()
+
+
+# In[5]:
+
+
+attr_labels = []
+for label in yacht_data.columns:
+    attr_labels.append(label)
+
+inst_labels = yacht_data.index
+    
+print(attr_labels)
+
+
+# In[6]:
+
+
+# Attributes are columns, instances are rows
+ninst, nattr = yacht_data.shape
+D = np.zeros((ninst, ninst))
+
+for i in range(ninst):
+    i_data = yacht_data.iloc[i, :].values
+    for j in range(i, ninst):
+        j_data = yacht_data.iloc[j, :].values
+        
+        dist = dis.eucl_dist(i_data, j_data)
+        D[i][j] = D[j][i] = dist
+        
+if os.path.exists("output"):
+    print("Path exists")
+else:
+    print("Path not found, creating directory")
+    os.mkdir("output")
+    
+np.savetxt("output/YachtInstanceDistMatrix.csv", D, fmt="%.2f", delimiter=",")    
+
+
+# In[7]:
+
+
+D_attr = np.zeros((nattr, nattr))
+
+for i in range(nattr):
+    i_data = yacht_data.iloc[:, i].values
+    for j in range(i, nattr):
+        j_data = yacht_data.iloc[:, j].values
+        
+        dist = dis.eucl_dist(i_data, j_data)
+        D_attr[i][j] = D_attr[j][i] = dist
+        
+if os.path.exists("output"):
+    print("Path exists")
+else:
+    print("Path not found, creating directory")
+    os.mkdir("output")
+    
+np.savetxt("output/YachtAttributeDistMatrix.csv", D_attr, fmt="%.2f", delimiter=",")    
+
+
+# In[8]:
+
+
+# Generate sets of vertices
+V = set(n for n in range(len(D)))
+V_attr = set(n for n in range(len(D_attr)))
+
+
+# In[9]:
+
+
+# Generate graphs
+
+
+# In[10]:
+
+
+_ = sg.rngraph(V, D, "output/yacht-inst-rng.gml", inst_labels)
+
+
+# In[11]:
+
+
+_ = sg.rngraph(V_attr, D_attr, "output/yacht-attr-rng.gml", attr_labels)
+\end{minted}
+
+\subsection{Exercise 2 Notebook}
+\begin{minted}[breaklines]{python}
+
+\end{minted}
+
+\subsection{Exercise 2 Notebook}
+\begin{minted}[breaklines]{python}
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+# Exercise 2
+
+
+# In[2]:
+
+
+import math
+import matplotlib.pyplot as plt
+import numpy as np
+import os
+import pandas as pd
+
+import dtransform as dt
+
+
+# In[3]:
+
+
+cus_data = pd.read_csv("datasets/customerChurn.csv")
+cus_data.head()
+
+
+# In[4]:
+
+
+# Attribute labels
+attr_labels = []
+for label in cus_data.columns:
+    attr_labels.append(label)
+    
+# Instance labels
+inst_labels = [i for i in range(len(cus_data.index))]
+
+
+# In[5]:
+
+
+# Extract and remove class data
+classes = cus_data.iloc[:, 20]
+cus_data = cus_data.iloc[:, :20]
+
+# Remove phone number but keep area code
+cus_data = cus_data.drop(labels="Phone", axis=1)
+cus_data.head()
+
+
+# In[6]:
+
+
+# Replace international plan and vmail plan attribute values
+# no = 0, yes = 1
+cus_data = cus_data.replace("no", 0)
+cus_data = cus_data.replace("yes", 1)
+cus_data.head()
+
+
+# In[7]:
+
+
+# Replace states with a numeric label
+states_data = cus_data.iloc[:, 0]
+states = set()
+for item in states_data:
+    states.add(item)
+    
+states = list(states)
+print(states)
+    
+for i, item in enumerate(states):
+    cus_data = cus_data.replace(item, i)
+    
+cus_data.head()
+
+
+# In[8]:
+
+
+# Move account length attribute so that all non-categorical data is grouped (first 4 columns)
+cols = list(cus_data.columns)
+cols.remove("Account Length")
+cols.append("Account Length")
+
+cus_data = cus_data[cols]
+cus_data.head()
+
+
+# In[9]:
+
+
+# Remove categorical data temporarily
+cat_data = cus_data.iloc[:, :4]
+cus_data = cus_data.iloc[:, 4:]
+
+
+# In[10]:
+
+
+# Split data into training and test set
+split_point = int(cus_data.shape[0] * 7/10)
+
+train_num_data = cus_data.iloc[:split_point, :]
+train_cat_data = cat_data.iloc[:split_point, :]
+train_classes = classes[:split_point]
+
+test_num_data = cus_data.iloc[split_point:, :]
+test_cat_data = cat_data.iloc[split_point:, :]
+test_classes = classes[split_point:]
+
+
+# In[11]:
+
+
+# Normalize training data
+mins = []
+maxs = []
+for _, item in train_num_data.items():
+    mins.append(min(item))
+    maxs.append(max(item))
+    dt.normalise(item)
+    
+train_num_data.head()
+
+
+# In[12]:
+
+
+# Discretise the training values, large amount of instances will take minutes to complete
+splits = dt.discretise_dataset(train_num_data.iloc[:, :], classes, attr_axis=1)
+train_num_data.head()
+
+
+# In[13]:
+
+
+# Normalise test data
+for item, mini, maxi in zip(test_num_data.items(), mins, maxs):
+    dt.normalise(item[1], mini, maxi, True)
+    
+test_num_data.head()
+
+
+# In[14]:
+
+
+# Discretise test data
+for i, item in enumerate(test_num_data.items()):
+    dt.apply_splits(item[1], splits[i])
+    
+test_num_data.head()
+
+
+# In[15]:
+
+
+train_data = train_cat_data.join(train_num_data)
+train_data.head()
+
+
+# In[16]:
+
+
+test_data = test_cat_data.join(test_num_data)
+test_data.head()
+
+
+# In[17]:
+
+
+# Remove attributes with only 0 values
+# Discretisation process had determined these attributes offer no information regarding the class value
+keep = []
+for i, col in train_data.items():
+    delete = True
+    for val in col:
+        if val != 0:
+            delete = False
+            
+    if not delete:
+        keep.append(i)
+        
+train_reduced = train_data.filter(keep, axis=1)
+train_reduced.head()
+
+
+# In[18]:
+
+
+test_reduced = test_data.filter(keep, axis=1)
+test_reduced.head()
+
+
+# In[ ]:
+\end{minted}
+
+\subsection{Exercise 5, 6 \& 8 Notebook}
+This note book has some unnecessarily repetitive code that was unable to be generalised into a few functions due to time constraints.
+\begin{minted}[breaklines]{python}
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[2]:
+
+
+# Exercise 5
+
+
+# In[3]:
+
+
+import math
+import matplotlib.pyplot as plt
+import networkx as nx
+import numpy as np
+import os
+import pandas as pd
+import random
+
+import distance as dis
+import stats
+import subgraphs as sg
+
+
+# In[4]:
+
+
+alz_data = pd.read_csv("datasets/AlzheimersDiseaseTrain.csv")
+alz_data.head()
+
+
+# In[5]:
+
+
+# Feature (protein) labels
+attr_labels = []
+for label in alz_data.iloc[:, 0]:
+    attr_labels.append(str(label))
+    
+# Instance labels
+inst_labels = []
+for label in alz_data.columns:
+    inst_labels.append(str(label))
+inst_labels.remove('CLASS')
+print(inst_labels)
+
+
+# In[6]:
+
+
+alz_data = alz_data.iloc[:, 1:]
+alz_data.head()
+
+
+# In[7]:
+
+
+# Attributes are rows, instances are columns
+nattr, ninst = alz_data.shape
+D = np.zeros((ninst, ninst))
+
+for i in range(ninst):
+    i_data = alz_data.iloc[:, i].values
+    for j in range(i, ninst):
+        j_data = alz_data.iloc[:, j].values
+        
+        dist = dis.eucl_dist(i_data, j_data)
+        D[i][j] = D[j][i] = dist
+
+
+# In[8]:
+
+
+# Generate sets of vertices
+V = set(n for n in range(len(D)))
+
+
+# In[9]:
+
+
+# Generate the MST and KNN graph then use these to produce the MST-KNN graph
+k = 2
+mst = sg.mst(V, D, "output/alzheimersMST.gml", inst_labels)
+knn = sg.knn(V, D, k, "output/alzheimersKNN.gml", inst_labels)
+mst_knn = sg.mst_knn(mst, knn, "output/alzheimersMST-KNN.gml")
+
+
+# In[10]:
+
+
+# Exercise 6
+
+
+# In[11]:
+
+
+# Set k to the same amount of clusters in the mst_knn, seen in the generated graph
+k = 9
+
+
+# In[12]:
+
+
+class Cluster:
+    def __init__(self, centroid):
+        self.centroid = centroid
+        self.vertices = [centroid]
+        
+    def __str__(self):
+        return str(self.vertices)
+        
+    def new_centroid(self):
+        distances = []
+        for v in self.vertices:
+            distance = 0
+            for w in self.vertices:
+                if v == w:
+                    continue
+                    
+                distance += D[v][w]**2
+                
+            distances.append(distance)
+            
+        min_dist = distances[0]
+        index = 0
+        for i, distance in enumerate(distances):
+            if distance < min_dist:
+                min_dist = distance
+                index = i
+                
+        self.centroid = self.vertices[index]
+    
+    def clear_cluster(self):
+        self.vertices.clear()
+        self.vertices.append(self.centroid)
+
+
+# In[13]:
+
+
+# Generate k clusters and pick k random instances to be the centroids
+centroids = random.sample(list(V), k)  # Samples selects k items from the list with no duplicates
+print(centroids)
+
+clusters = []
+for centroid in centroids:
+    clusters.append(Cluster(centroid))
+
+
+# In[14]:
+
+
+loop = True
+while loop:
+    loop = False
+    # Iterate through all instances and add it to the cluster with the nearest centroid
+    for inst in V:
+        if inst in centroids:
+            continue
+        min_dist = D[inst][clusters[0].centroid]
+        closest_clust = 0
+        for i, cluster in enumerate(clusters):    
+            dist = D[inst][cluster.centroid]
+            if dist < min_dist:
+                min_dist = dist
+                closest_clust = i
+
+        clusters[closest_clust].vertices.append(inst)
+
+    # Recalculate centroids, if a change is detected continue looping
+    centroids.clear()
+    for cluster in clusters:
+        current_c = cluster.centroid
+        cluster.new_centroid()
+        
+        new_c = cluster.centroid
+        centroids.append(new_c)
+        
+        cluster.clear_cluster()
+        if current_c != new_c:
+            loop = True
+
+
+# In[15]:
+
+
+# Iterate through all instances and add it to the cluster with the nearest centroid
+for inst in V:
+    if inst in centroids:
+        continue
+    min_dist = D[inst][clusters[0].centroid]
+    closest_clust = 0
+    for i, cluster in enumerate(clusters):        
+        dist = D[inst][cluster.centroid]
+        if dist < min_dist:
+            min_dist = dist
+            closest_clust = i
+
+    clusters[closest_clust].vertices.append(inst)
+
+
+# In[20]:
+
+
+for cluster in clusters:
+    print(cluster)
+
+
+# In[16]:
+
+
+# Retrieve class labels of k-means clusters for visual comparison with MST-KNN graph
+for cluster in clusters:
+    class_list = []
+    for v in cluster.vertices:
+        class_list.append(inst_labels[v])
+        
+    print(class_list)
+
+
+# In[17]:
+
+
+# Start with a set for each instance
+mst_knn_clusters = [{i} for i in range(len(V))]
+
+# Iterate through mst_knn edges to produce a list of clusters in a similar format to the k-means result
+for edge in mst_knn:
+    source = inst_labels.index(edge[0])
+    target = inst_labels.index(edge[1])
+    
+    s_set = set()
+    t_set = set()
+    # Find which sets the source and target are in
+    for i in range(len(mst_knn_clusters)):
+        if source in mst_knn_clusters[i]:
+            s_set = mst_knn_clusters[i]
+        if target in mst_knn_clusters[i]:
+            t_set = mst_knn_clusters[i]
+            
+    # Merge these two sets
+    new_set = s_set.union(t_set)
+    mst_knn_clusters.remove(s_set)
+    if s_set != t_set:  # Only remove second set if it is different to the first
+        mst_knn_clusters.remove(t_set)
+    mst_knn_clusters.append(new_set)
+    
+mst_knn_list = []
+for item in mst_knn_clusters:
+    mst_knn_list.append(list(item))
+    
+for item in mst_knn_list:
+    print(item)
+
+
+# In[25]:
+
+
+# Ground truth, two clusters, one for each class
+gt = []
+gt.append([i for i in range(43)])
+gt.append([i for i in range(43, 83)])
+print(gt)
+
+
+# In[26]:
+
+
+# Build confusion matrix for purpose of inter-rater reliability calculation
+cm = np.zeros((2,2))
+
+# pair considered is either (t = together or a = apart) in the set of clusters
+#    mst-knn
+#     t a
+#gt t
+#   a
+
+# Iterate through every possible pair of instances/vertices
+for u in range(len(V)):
+    for v in range(u + 1, len(V)):
+        for cluster in mst_knn_list:
+            if u in cluster:
+                break
+                
+        if v in cluster:
+            j = 0
+        else:
+            j = 1
+            
+        for cluster2 in gt:
+            if v in cluster2:
+                break
+                
+        if u in cluster2:
+            i = 0
+        else:
+            i = 1
+            
+        cm[i][j] += 1
+        
+print(cm)
+
+
+# In[27]:
+
+
+kappa = stats.ckappa(cm)
+print(kappa)
+
+
+# In[28]:
+
+
+# Build confusion matrix for purpose of inter-rater reliability calculation
+cm2 = np.zeros((2,2))
+
+# pair considered is either (t = together or a = apart) in the set of clusters
+#    k-means
+#     t a
+#gt t
+#   a
+
+# Iterate through every possible pair of instances/vertices
+for u in range(len(V)):
+    for v in range(u + 1, len(V)):
+        for cluster in clusters:
+            if u in cluster.vertices:
+                break
+                
+        if v in cluster.vertices:
+            j = 0
+        else:
+            j = 1
+            
+        for cluster2 in gt:
+            if v in cluster2:
+                break
+                
+        if u in cluster2:
+            i = 0
+        else:
+            i = 1
+            
+        cm2[i][j] += 1
+        
+print(cm2)
+
+
+# In[29]:
+
+
+kappa = stats.ckappa(cm2)
+print(kappa)
+
+
+# In[21]:
+
+
+# Exercise 8
+
+
+# In[49]:
+
+
+# Single linkage hierarchical clustering using an agglomerative approach
+# Start with each instance in its own cluster
+hclusters = [[i] for i in range(len(V))]
+
+# Find two closest clusters and merge, repeat until there are k clusters
+while(len(hclusters) > k):
+    # Set initial distance to that of first two distinct clusters
+    min_dist = D[hclusters[0][0]][hclusters[1][0]]
+    source = hclusters[0]
+    target = hclusters[1]
+
+    for hcluster in hclusters:
+        # Compare instances in the current cluster to all instances in other clusters to find the closest cluster
+        for inst1 in hcluster:
+            for inst2 in V:
+                if inst2 in hcluster:
+                    continue
+
+                if D[inst1][inst2] < min_dist:
+                    min_dist = D[inst1][inst2]
+                    source = hcluster
+                    target_instance = inst2
+
+    # Find which cluster the other instance is in
+    for hcluster in hclusters:
+        for inst in hcluster:
+            if inst == target_instance:
+                target = hcluster
+
+    # Merge the two clusters the two closest instances belong to
+    new_cluster = source + target
+    hclusters.remove(source)
+    hclusters.remove(target)
+    hclusters.append(new_cluster)
+    
+for hcluster in hclusters:
+    print(hcluster)
+
+
+# In[50]:
+
+
+# Retrieve class labels of hierarchical clustering
+for hcluster in hclusters:
+    class_list = []
+    for v in hcluster:
+        class_list.append(inst_labels[v])
+        
+    print(class_list)
+
+
+# In[52]:
+
+
+cm3 = np.zeros([2,2])
+
+# Iterate through every possible pair of instances/vertices
+for u in range(len(V)):
+    for v in range(u + 1, len(V)):
+        for cluster in hclusters:
+            if u in cluster:
+                break
+                
+        if v in cluster:
+            j = 0
+        else:
+            j = 1
+            
+        for cluster2 in gt:
+            if v in cluster2:
+                break
+                
+        if u in cluster2:
+            i = 0
+        else:
+            i = 1
+            
+        cm3[i][j] += 1
+        
+print(cm3)
+
+kappa = stats.ckappa(cm3)
+print(kappa)
+
+
+# In[58]:
+
+
+# Average linkage hierarchical clustering using an agglomerative approach
+# Start with each instance in its own cluster
+hclusters = [[i] for i in range(len(V))]
+
+# Find two closest clusters and merge, repeat until there are k clusters
+while(len(hclusters) > k):
+    # Set initial distance to that of first two distinct clusters
+    min_dist = 0
+    for inst1 in hclusters[0]:
+        for inst2 in hclusters[1]:
+            min_dist += D[inst1][inst2]
+
+    min_dist = min_dist / (len(hclusters[0]) + len(hclusters[1]))
+    source = hclusters[0]
+    target = hclusters[1]
+
+    # Find closest two clusters by average linkage
+    for hcluster in hclusters:           
+        for hcluster2 in hclusters:
+            if hcluster == hcluster2:
+                continue
+
+            avg_dist = 0
+            for inst1 in hcluster:
+                for inst2 in hcluster2:
+                    avg_dist += D[inst1][inst2]
+                    
+            avg_dist = avg_dist / (len(hcluster) + len(hcluster2))
+            
+            if avg_dist < min_dist:
+                min_dist = avg_dist
+                source = hcluster
+                target = hcluster2
+
+    # Merge the two clusters the two closest instances belong to
+    new_cluster = source + target
+    hclusters.remove(source)
+    hclusters.remove(target)
+    hclusters.append(new_cluster)
+    
+for hcluster in hclusters:
+    print(hcluster)
+
+
+# In[59]:
+
+
+# Retrieve class labels of hierarchical clustering
+for hcluster in hclusters:
+    class_list = []
+    for v in hcluster:
+        class_list.append(inst_labels[v])
+        
+    print(class_list)
+
+
+# In[60]:
+
+
+cm4 = np.zeros([2,2])
+
+# Iterate through every possible pair of instances/vertices
+for u in range(len(V)):
+    for v in range(u + 1, len(V)):
+        for cluster in hclusters:
+            if u in cluster:
+                break
+                
+        if v in cluster:
+            j = 0
+        else:
+            j = 1
+            
+        for cluster2 in gt:
+            if v in cluster2:
+                break
+                
+        if u in cluster2:
+            i = 0
+        else:
+            i = 1
+            
+        cm4[i][j] += 1
+        
+print(cm4)
+
+kappa = stats.ckappa(cm4)
+print(kappa)
+
+
+# In[ ]:
+\end{minted}
+
+\subsection{Exercise 7 Notebook}
+\begin{minted}[breaklines]{python}
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+import stats
+
+
+# In[2]:
+
+
+# Sensitivity matrices
+cm1 = [[20, 6],[5, 19]]
+print(stats.mcc(cm1))
+
+cm2 = [[20, 21],[5, 4]]
+print(stats.mcc(cm2))
+
+cm3 = [[40, 10],[0,0]]
+print(stats.mcc(cm3))
+
+
+# In[3]:
+
+
+# Sensitivity matrices
+cm1 = [[19, 5],[6, 20]]
+print(stats.mcc(cm1))
+
+cm2 = [[4, 5],[21, 20]]
+print(stats.mcc(cm2))
+
+cm3 = [[40, 10],[0,0]]
+print(stats.mcc(cm3))
+
+
+# In[4]:
+
+
+# Accuracy matrices
+cm1 = [[21, 3],[4, 22]]
+print(stats.mcc(cm1))
+
+cm3 = [[40, 10],[0,0]]
+print(stats.mcc(cm3))
+
+
+# In[ ]:
+\end{minted}
+
+\subsection{Exercise 10 Notebook}
+\begin{minted}[breaklines]{python}
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+# Use SVM with US Presidency dataset to determine if a linear separation is possible
+
+
+# In[2]:
+
+
+import numpy as np
+import pandas as pd
+from sklearn.svm import SVC
+from sklearn.model_selection import GridSearchCV
+
+
+# In[3]:
+
+
+us_data = pd.read_csv("datasets/USPresidency.csv")
+us_data.head()
+
+
+# In[4]:
+
+
+classes = us_data.iloc[:, 13]
+us_data = us_data.iloc[:, 1:13]
+us_data.head()
+
+
+# In[5]:
+
+
+svm = SVC()
+grid = GridSearchCV(estimator=svm, param_grid={"C": [0.1, 1, 10, 100], "kernel": ["rbf", "linear"], "gamma": [0.001, 0.01, 0.1, 1, 10, 100]})
+grid.fit(us_data, classes)
+print(grid.best_estimator_)
+
+
+# In[6]:
+
+
+classifications = grid.predict(us_data)
+correct = 0
+print(classifications)
+print(list(classes))
+for classification, actual in zip(classifications, classes):
+    if classification == actual:
+        correct += 1
+    
+print(correct, "correct classifications out of", len(classes))
+
+
+# In[7]:
+
+
+# 100% classification rate, therefore a linear separation exists in a higher dimensional space
+
+
+# In[8]:
+
+
+svm = SVC(C=10, kernel="linear", gamma=0.001)
+svm.fit(us_data, classes)
+# Retrieve coefficients of features to build a new feature
+print(svm.coef_)
+
+
+# In[ ]:
+\end{minted}
+
+\subsection{distance.py}
+\begin{minted}[breaklines]{python}
+# TODO add jaccard distance from A1P1
+
+import math
+
+def eucl_dist(x, y):
+    sum = 0
+    for i in range(len(x)):
+        sum += (x[i] - y[i])**2
+        
+    return math.sqrt(sum) 
+
+
+def hamming_distance(x, y):
+    distance = 0
+    for i in range(len(x)):
+        if x[i] != y[i]:
+            distance += 1
+    
+    return distance
+\end{minted}
+
+\subsection{dtransform.py}
+\begin{minted}[breaklines]{python}
+# Last updated 09/10/2020 
+
+import math
+import numpy as np
+import pandas as pd
+
+__version__ = "0.3"
+
+# 0.3 - added min-max normalisation function
+# 0.2 - changed entropy based discretisation to fayyad-irani algorithm
+#       - by changing the gain_threshold input to a calculation
+# 0.1 - initial implementation of discretisation and k-feature set reduction
+
+def map_classes(classes, class_name):
+    class_labels = []
+    for item in classes:
+        if (item == class_name):
+            class_labels.append(0)
+        else:
+            class_labels.append(1)
+        
+    return class_labels
+
+
+# Min-max normalise the input data
+def normalise(data, mini=0, maxi=0, override=False):
+    # Find minimum and maximum values of data
+    if not override:
+        mini = min(data)
+        maxi = max(data)
+    
+    # Normalise data
+    values = []
+    for val in data:
+        values.append((val - mini) / (maxi - mini))
+        
+    # Write over input data
+    for i, val in enumerate(values):
+        data.iloc[i] = val
+
+
+# Discretisation functions
+def discretise_dataset(data, classes, attr_axis=1):
+    # TODO passing in a pre-discretised dataset creates poor output
+    if attr_axis == 0:
+        feature_count = len(data.index)
+    else:
+        feature_count = len(data.columns)
+    
+    # Number of instances used to determine gain threshold
+    inst_count = len(classes)
+
+    print("Total features = ", feature_count)
+    data_splits = []
+    for index in range(feature_count):
+        # TODO doesn't overwrite last line sometimes
+        print("Discretising feature ", index + 1, end='\r', flush=True)
+        if attr_axis == 0:
+            cur_data = data.iloc[index, :]
+        else:
+            cur_data = data.iloc[:, index]
+
+        splits = []
+        splits += __disc_recurs__(cur_data.copy(), classes, inst_count, splits)
+        splits.sort()
+        
+        apply_splits(cur_data, splits)
+        data_splits.append(splits)
+        
+    return data_splits
+
+
+def apply_splits(data, splits):
+    for i, val in data.iteritems():
+        val = float(val)
+        
+        if len(splits) == 0:  # If the attribute is irrelevant, then no splits were found
+            data.at[i] = 0
+        else:
+            for j, split in enumerate(splits):
+                if val <= split:
+                    data.at[i] = j
+                    break
+
+            # If the value is greater than the final split value
+            if val > split:
+                data.at[i] = j + 1
+
+
+def __disc_recurs__(data, class_list, inst_count, split_list):
+    """ 
+        Same as for discretise()
+        split_list = list of split points, internal use only
+    """
+    
+    if len(data) == 0:
+        return []
+      
+    # Sorted data used to find candidate split points
+    data_sorted = data.sort_values()
+    
+    # Remove duplicates and reindex
+    data_sorted = data.drop_duplicates()
+    data_sorted = data_sorted.reindex([i for i in range(data_sorted.size)], method='backfill')
+    
+    # Set up range within in which to find a split point
+    mini = min(data_sorted)
+    maxi = max(data_sorted)
+    
+    # Set up initial values for best split found so far
+    best_gain = 0
+    best_split = 0
+    best_e = [1, 1, 1]
+    c1 = 0
+    c2 = 0
+    
+    # Calculate the entropy of the data before splitting
+    initial_e, _, c = entropy(data, class_list, mini, maxi)
+    
+    # Find split point in data
+    for i in range(0, data_sorted.size - 1):
+        # Take the average of two adjacent values and use this as the split point
+        split = (data_sorted[i] + data_sorted[i+1])/2
+
+        # Calculate entropy of the two bins produced at this split point
+        e1, s1, c1 = entropy(data, class_list, mini, split)
+        e2, s2, c2 = entropy(data, class_list, split, maxi)
+
+        # Calculate information for both bins combined
+        s = s1 + s2
+        info = (s1 / s) * e1 + (s2 / s) * e2
+
+        # Calculate gain
+        gain = initial_e - info
+
+        # If gain is better than previous best, this split is now the best split
+        if gain > best_gain:
+            best_gain = gain
+            best_split = split
+            best_e = [initial_e, e1, e2]
+
+    # Calculate gain threshold
+    delta = math.log(3**c, 2) - (c*best_e[0] - c1*best_e[1] - c2*best_e[2])
+    gain_threshold = math.log(inst_count -  1, 2) + delta
+    gain_threshold = gain_threshold / inst_count
+
+    # Accept split point only if gain is above threshold
+    if best_gain <= gain_threshold:
+        return []
+    
+    # Split data along this point and recursively call self
+    split_data1 = pd.Series()
+    split_data2 = pd.Series()
+    split_class_list1 = []
+    split_class_list2 = []
+    
+    for i, val in enumerate(data):
+        if val <= best_split:
+            if split_data1.size == 0:
+                split_data1 = split_data1.append(pd.Series([val]))
+            else:
+                split_data1.at[max(split_data1.index) + 1] = val
+            
+            split_class_list1.append(class_list[i])
+        else:
+            if split_data2.size == 0:
+                split_data2 = split_data2.append(pd.Series([val]))
+            else:
+                split_data2.at[max(split_data2.index) + 1] = val
+
+            split_class_list2.append(class_list[i])
+    
+    split_list += __disc_recurs__(split_data1, split_class_list1, inst_count, split_list)
+    split_list += __disc_recurs__(split_data2, split_class_list2, inst_count, split_list)
+    
+    # Return best split found
+    return [best_split]
+
+
+def entropy(data, classes, lbound, ubound):
+    """ 
+        data = pandas Series
+        classes = class
+        lbound and ubound = numbers
+    """
+        
+    # Assign classes an integer to be used as an index
+    class_set = set()
+    for item in classes:
+        class_set.add(item)
+                
+    class_amount = len(class_set)
+    
+    class_dict = {}
+    for i, item in enumerate(class_set):
+        class_dict.update({item: i})
+    
+    # Count how many values occur within the bounds and which class each belongs to
+    class_totals = []
+    for i in range(class_amount):
+        class_totals.append(0)
+               
+    for val, category in zip(data, classes):
+        if (val < ubound and val >= lbound):
+            class_totals[class_dict[category]] += 1
+    
+    # Calculate proportion of values in each class
+    prob = []
+    size = sum(class_totals)
+    if size == 0:
+        return 1, 0, 0  # Empty interval, return worst case result of entropy = 1
+
+    for item in class_totals:
+        prob.append(item / size)
+
+    # Calculate entropy
+    total = 0
+    for i in range(class_amount):
+        # Do not add anything if class occurs 0 times, to prevent log(0) occurring
+        if prob[i] != 0:
+            total += prob[i] * math.log(prob[i], 2)
+        
+    total = total * -1
+
+    return total, size, class_amount
+
+
+# K-feature set reduction functions
+def chi_sq(data, class_labels, attr_axis=1):
+    # Calculate chi-squared values for each attribute in dataset
+    chi_values = []
+    
+    if attr_axis == 0:
+        attributes = data.iterrows()
+    else:
+        attributes = data.items()
+    
+    for _, attribute in attributes:
+        m = 2  # Two classes
+        n = int(max(attribute)) + 1
+
+        # Contingency table for class attribute and the current attribute
+        con_table = np.zeros([m+1, n+1])
+        for val, class_num in zip(attribute, class_labels):
+            val = int(val)
+            con_table[class_num][val] += 1
+
+        # Update sum column and row in table
+        for i in range(m):
+            for j in range(n):
+                con_table[i][n] += con_table[i][j]
+                con_table[m][j] += con_table[i][j]
+
+                # Update intersection of sum column and row
+                con_table[m][n] += con_table[i][j]
+
+        # Calculate chi-table
+        chi_table = np.zeros([m, n])
+        for i in range(m):
+            for j in range(n):
+                chi_table[i][j] = (con_table[i][n] * con_table[m][j]) / con_table[m][n]
+
+        # Calculate chi-squared
+        chi_sq = 0
+        for i in range(m):
+            for j in range(n):
+                chi_sq += ((con_table[i][j] - chi_table[i][j]) ** 2 ) / chi_table[i][j]
+
+        chi_values.append(chi_sq)
+        
+    return chi_values
+
+
+# Create reduced dataset by choosing k highest scoring attributes
+def k_chi_reduce(data, k, chi_values, labels, attr_axis=1):
+    cur_chi_values = chi_values.copy()
+    indices = []
+    for i in range(k):
+        max_chi_index = cur_chi_values.index(max(cur_chi_values))
+        cur_chi_values.remove(max(cur_chi_values))
+        indices.append(max_chi_index)
+    
+    keep = []
+    for i in indices:
+        keep.append(labels[i])
+        
+    return data.filter(keep, axis=attr_axis)
+\end{minted}
+
+\subsection{stats.py}
+\begin{minted}[breaklines]{python}
+# Last updated 07/11/2020
+
+import math
+import numpy as np
+
+__version__ = "0.2"
+
+# 0.2 - added Cohen's kappa
+# 0.1 - creation
+
+# The following functions accept a 2x2 confusion matrix
+# The matrix must be of the following formate
+# TP FP
+# FN TN
+def get_values(matrix):
+    return matrix[0][0], matrix[0][1], matrix[1][0], matrix[1][1]
+
+
+def sensitivity(matrix):
+    TP, FP, FN, TN = get_values(matrix)
+    return TP / (TP + FN)
+
+
+def specificity(matrix):
+    TP, FP, FN, TN = get_values(matrix)
+    return TN / (TN + FP)
+
+
+def accuracy(matrix):
+    TP, FP, FN, TN = get_values(matrix)
+    return (TP + TN) / (TP+TN+FP+FN)
+
+
+def precision(matrix):
+    TP, FP, FN, TN = get_values(matrix)
+    return TP / (TP + FP)
+
+
+def f1(matrix):
+    return 2 / ((1 / precision(matrix)) + (1 / sensitivity(matrix)))
+
+
+def mcc(matrix):
+    TP, FP, FN, TN = get_values(matrix)
+    n = (TP * TN) - (FP * FN)
+    d = math.sqrt((TP+FP) * (TP+FN) * (TN+FP) * (TN+FN))
+    
+    if d == 0:
+        d = 1
+    
+    return n / d
+
+def youdenJ(matrix):
+    return sensitivity(matrix) + specificity(matrix) - 1
+
+
+def ckappa(matrix):
+    a, b, c, d = get_values(matrix)
+    acc = accuracy(matrix)
+    
+    # Probability of randomly clustering the same pair together
+    p_pos = (a + b) * (a + c) / ((a + b + c + d)**2) 
+    
+    # Probability of randomly clustering the same pair apart
+    p_neg = (c + d) * (b + d) / ((a + b + c + d)**2)
+    
+    # Total probability of clusters randomly agreeing
+    p = p_pos + p_neg
+    
+    return (acc - p) / (1 - p)
+\end{minted}
+
+\subsection{subgraphs.py}
+\begin{minted}[breaklines]{python}
+# Last update 12/09/2020
+# TODO rename gabriel graph function
+
+import math
+import networkx as nx
+import numpy as np
+import pylab as plt
+
+__version__ = "0.3.1"
+# 0.3 - added plot argument to functions
+# 0.2 - custom vertex label support
+# 0.1 - subgraph methods now return a list of edges
+# 0.0 - core functions added
+
+def mst(V, D, save_as="graph-mst.gml", labels=[], plot=False):
+    MST = nx.Graph()
+    mst_labels = {}
+    mst_edges =[]
+    curr_vert = 0
+    mst_vertices = {curr_vert}
+    
+    if len(labels) == 0:
+        labels = [n for n in range(len(V))]
+        
+    # Add vertices until all are in the MST
+    while mst_vertices != V:
+        # Select an edge not in the MST and set it as the shortest found so far
+        for vert in  range(len(D)):
+            if vert not in mst_vertices:
+                prev_vert = curr_vert
+                curr_vert = vert
+                min_dist = D[prev_vert][curr_vert] 
+                break
+        
+        # Find the shortest edge to a vertex not in the MST
+        for u in mst_vertices:
+            for v, distance in enumerate(D[u][:]):
+                if distance <= min_dist and v not in mst_vertices:
+                    min_dist = distance
+                    prev_vert = u
+                    curr_vert = v
+                    
+        # Add this vertex to the MST
+        source = labels[prev_vert]
+        target = labels[curr_vert]
+        
+        MST.add_edge(source, target, weight=min_dist)
+        mst_edges.append([source, target, min_dist])
+        mst_labels[(source, target)] = "{:.2f}".format(min_dist)
+        mst_vertices.add(curr_vert)
+        
+    if plot:
+        pos = nx.spring_layout(MST)
+        nx.draw(MST, pos)
+        nx.draw_networkx_labels(MST, pos)
+        nx.draw_networkx_edge_labels(MST, pos, edge_labels=mst_labels)
+        plt.show()
+    
+    nx.write_gml(MST, save_as)
+    
+    return mst_edges
+
+
+def rngraph_compare(V, D, u, v):
+    for r in (V - set([u, v])):
+            if D[r][u] < D[u][v] and D[r][v] < D[u][v]:
+                return False
+    return True
+
+
+def rngraph(V, D, save_as="graph-rng.gml", labels=[], plot=False):
+    R = nx.Graph()
+    rng_labels = {}
+    rng_edges = []
+    
+    if len(labels) == 0:
+        labels = [n for n in range(len(V))]
+    
+    for u in V:
+        for v in (V - set([u])):
+            dist = D[u][v]
+            # Add an edge if it is a relative neighbour
+            if rngraph_compare(V, D, u, v):
+                source = labels[u]
+                target = labels[v]
+                
+                R.add_edge(source, target, weight=dist)
+                rng_edges.append([source, target, dist])
+                rng_labels[(source, target)] = "{:.2f}".format(dist)
+
+    if plot:
+        pos = nx.spring_layout(R)
+        nx.draw(R, pos)
+        nx.draw_networkx_labels(R, pos)
+        nx.draw_networkx_edge_labels(R, pos, edge_labels=rng_labels)
+        plt.show()
+    
+    nx.write_gml(R, save_as)
+    
+    return rng_edges
+    
+    
+def gg_graph_compare(V, D, u, v):
+    for r in (V - set([u, v])):
+        if D[u][v]**2 > D[u][r]**2 + D[v][r]**2:
+            return False
+    return True
+
+
+def gg_graph(V, D, save_as="graph-gg.gml", labels=[], plot=False):
+    GG = nx.Graph()
+    gg_labels = {}
+    gg_edges = []
+    
+    if len(labels) == 0:
+        labels = [n for n in range(len(V))]
+    
+    for u in V:
+        for v in (V - set([u])):
+            dist = D[u][v]
+            # Add an edge if it fulfills the Gabriel Graph condition
+            if gg_graph_compare(V, D, u, v):
+                source = labels[u]
+                target = labels[v]
+                
+                GG.add_edge(source, target, weight=dist)
+                gg_edges.append([source, target, dist])
+                gg_labels[(source, target)] = "{:.2f}".format(dist)
+
+    if plot:
+        pos = nx.spring_layout(GG)
+        nx.draw(GG, pos)
+        nx.draw_networkx_labels(GG, pos)
+        nx.draw_networkx_edge_labels(GG, pos, edge_labels=gg_labels)
+        plt.show()
+    
+    nx.write_gml(GG, save_as)
+    
+    return gg_edges
+    
+        
+def knn(V, D, k, save_as="graph-knn.gml", labels=[], plot=False):
+    KNN = nx.Graph()
+    knn_vertices = set()
+    knn_labels = {}
+    knn_edges = []
+    
+    if len(labels) == 0:
+        labels = [n for n in range(len(V))]
+
+    # Set k to the max permitted value if it is greater than it
+    # A vertex cannot have more neighbours than there are other vertices
+    if k > len(V) - 1:
+        print("k value too large, creating fully connected graph")
+        k = len(V) - 1
+
+    for u in V:
+        neighbours = set([u]) # Currently connected vertices
+        # Find k nearest neighbours and connect these vertices to u
+        for i in range(k):
+            # Set some other point as closest point found so far
+            for v in (V - neighbours):
+                if v not in knn_vertices:
+                    break
+            new_vert = v
+            min_dist = D[u][v]
+            
+            # Find the closest point that has not already been added
+            for v in (V - neighbours):
+                if D[u][v] < min_dist:
+                    min_dist = D[u][v]
+                    new_vert = v
+            
+            # Add it to the graph
+            neighbours.add(new_vert)
+            knn_vertices.add(new_vert)
+            
+            source = labels[u]
+            target = labels[new_vert]
+            
+            KNN.add_edge(source, target, weight=min_dist)
+            knn_edges.append([source, target, min_dist])
+            knn_labels[(source, target)] = "{:.2f}".format(min_dist)
+            
+    if plot:
+        pos = nx.spring_layout(KNN)
+        nx.draw(KNN, pos)
+        nx.draw_networkx_labels(KNN, pos)
+        nx.draw_networkx_edge_labels(KNN, pos, edge_labels=knn_labels)
+        plt.show()
+    
+    nx.write_gml(KNN, save_as)
+    
+    return knn_edges
+
+# Requires mst_edges and knn_edges to use the same vertex labelling scheme
+# Assumes if edges are equivalent if the source and target are the same
+# Cannot handle the case where two edges fulfill this condition with different weights
+def mst_knn(mst_edges, knn_edges, saveas="graph-mst-knn.gml", plot=False):
+    # Unlike the other functions, labels=[] is not required
+    # As labels are used from the input edge lists
+    MST_KNN = nx.Graph()
+    mst_knn_labels = {}
+    mst_knn_edges = []
+
+    
+    for mst_edge in mst_edges:
+        for knn_edge in knn_edges:
+            if (mst_edge[0] == knn_edge[0] and mst_edge[1] == knn_edge[1]) or \
+            (mst_edge[0] == knn_edge[1] and mst_edge[1] == knn_edge[0]):
+                
+                source = mst_edge[0]
+                target = mst_edge[1]
+                dist = mst_edge[2]
+                
+                MST_KNN.add_edge(source, target, weight=dist)
+                mst_knn_labels[(source, target)] = "{:.2f}".format(dist)
+                mst_knn_edges.append([source, target, dist])
+
+
+    if plot:
+        pos = nx.spring_layout(MST_KNN)
+        nx.draw(MST_KNN, pos)
+        nx.draw_networkx_labels(MST_KNN, pos)
+        nx.draw_networkx_edge_labels(MST_KNN, pos, edge_labels=mst_knn_labels)  
+        plt.show()
+
+    nx.write_gml(MST_KNN, saveas)
+    
+    return mst_knn_edges
+\end{minted}
+
+\begin{thebibliography}{18}
+
+\bibitem{svm}
+Chen, L. (2019, January 8). \emph{Support Vector Machine — Simply Explained}. Towards Data Science. https://towardsdatascience.com/support-vector-machine-simply-explained-fee28eba5496
+
+\bibitem{mcc}
+Chicco, D., Jurman, G., (2020). The advantages of the Matthews correlation coefficient (MCC) over F1 score and accuracy in binary classification evaluation. \emph{BMC Genomics 21(6)}. https://doi.org/10.1186/s12864-019-6413-7
+
+\bibitem{kappa}
+Cohen, J. (1960). A coefficient of agreement for nominal scales. \emph{Educational and psychological measurement 20(1)}, 37-46.
+
+\bibitem{lec_clust}  % euclidean distance and clustering reference
+de Vries, N., Olech, L., Moscato, P. (2017, December 15). \emph{Introducing Clustering with a focus in Marketing and Consumer Analsis} [PowerPoint slides]. Blackboard. https://uonline.newcastle.edu.au/
+
+\bibitem{data_uci}
+Dua, D. and Graff, C. (2019). \emph{UCI Machine Learning Repository}. Irvine, CA: University of California, School of Information and Computer Science.  http://archive.ics.uci.edu/ml.
+
+\bibitem{fayyad-irani}
+Fayyad, U. M., Irani, K. B., (1993). Multi-Interval Discretization of Continuious-Valued attributes for Classification Learning. http://hdl.handle.net/2014/35171
+
+\bibitem{data_president}
+Lichtman, A. J., Keilis-Borok, V. I. (1981). Pattern recognition applied to presidential elections in teh United States, 1860-1980: Role of integral social, economic, and political traits. \emph{Proceedings of the National Academy of Sciences of the United States of America 72(11)}, 7230-7234. https://dx.doi.org/10.1073\%2Fpnas.78.11.7230
+
+\bibitem{lec_graphs}
+Mathieson, L., Moscato, P. (2017, December 5). \emph{An Introduction to Proximity Graphs} [PowerPoint slides]. Blackboard. https://uonline.newcastle.edu.au/
+
+\bibitem{kappa_calc}
+McHugh M. L. (2012). Interrater reliability: the kappa statistic. \emph{Biochemia medica 22(3)}, 276–282.
+
+\bibitem{entropy}
+Meurer, N., (2015, February 26). \emph{A Simple Guide to Entropy-Based Discretization}. Natalie Meurer. https://natmeurer.com/a-simple-guide-to-entropy-based-discretization/
+
+\bibitem{textbook}
+Moreira, J., Horvath, T., \& Carvalho, A. (2018). A general introduction to data analytics. John Wiley \& Sons, Incorporated
+
+\bibitem{lec_kl} % k-feature set and l-patterns reference
+Moscato, P., de Vries, N., (2020, August 23). \emph{Marketing meets Data Science} [PowerPoint slides]. Blackboard. https://uonline.newcastle.edu.au/
+
+\bibitem{data_customer}
+Obiedat, R., Alkasassbeh, M., Faris, H., Harfoushi, O. (2013). Customer churn prediction using a hybrid genetic programming approach. \emph{Scientific Research and Essays 8(27}, 1289-1295. https://doi.org/10.5897/SRE2013.5559
+
+\bibitem{data_yacht}
+Ortigosa, I., Lopez, R. and Garcia, J. (2007). A neural networks approach to residuary resistance of sailing
+yachts prediction. \emph{Proceedings of the International Conference on Marine Engineering MARINE, 2007}, 250.
+
+\bibitem{data_alz}
+Ray, S., Britschgi, M., Herbert, C., Takeda-Uchimura, Y., Boxer, A., Blennow, K., ... \& Kaye, J. A. (2007). Classification and prediction of clinical Alzheimer's diagnosis based on plasma signaling proteins. \emph{Nature medicine, 13(11)}, 1359-1362. https://doi.org/10.1038/nm1653
+
+\bibitem{imputation}
+Somasundaram, R. S., Nedunchezhian, R. (2011). Evaluation of three simple imputation methods for enhancing preprocessing of data with missing values. \emph{International Journal of Computer Applications 21(10)}, 14-19.
+
+\bibitem{linkage}
+Yim, O., Ramdeen, K. T. (2015). Hierarchical cluster analysis: comparison of three linkage measures and application to psychological data. \emph{The quantitative methods for psychology 11(1)}, 8-21.
+
+\bibitem{agglomerative}
+Yudha Wijaya, C. (2019, December 18). \emph{Breaking down the agglomerative clustering process}. Towards Data Science. https://towardsdatascience.com/breaking-down-the-agglomerative-clustering-process-1c367f74c7c2
+\end{thebibliography}
+
+\end{document}  

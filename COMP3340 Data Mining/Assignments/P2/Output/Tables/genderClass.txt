@@ -1,0 +1,9 @@
+\begin{tabular}{lrrrr}
+\toprule
+{} &      M &      L &      H &  Total \\
+\midrule
+M     &  135.0 &  103.0 &   67.0 &  305.0 \\
+F     &   76.0 &   24.0 &   75.0 &  175.0 \\
+Total &  211.0 &  127.0 &  142.0 &  480.0 \\
+\bottomrule
+\end{tabular}

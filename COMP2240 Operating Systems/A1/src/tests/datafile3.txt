@@ -1,0 +1,23 @@
+// Test arbitry process IDs and less than 5 processes
+// Test dispatch time provided after processes
+BEGIN
+
+ID: p1
+Arrive: 0
+ExecSize: 10
+END
+
+ID: p2
+Arrive: 10
+ExecSize: 1
+END
+
+ID: p33
+Arrive: 15
+ExecSize: 2
+END
+
+DISP: 1
+END
+
+EOF

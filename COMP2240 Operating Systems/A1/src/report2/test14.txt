@@ -1,0 +1,48 @@
+// Starvation of FB v2
+BEGIN
+
+DISP: 1
+END
+
+ID: p1
+Arrive: 0
+ExecSize: 30
+END
+
+ID: p2
+Arrive: 2
+ExecSize: 8
+END
+
+ID: p3
+Arrive: 4
+ExecSize: 8
+END
+
+ID: p4
+Arrive: 6
+ExecSize: 8
+END
+
+ID: p5
+Arrive: 8
+ExecSize: 8
+END
+
+ID: p6
+Arrive: 10
+ExecSize: 8
+END
+
+ID: p7
+Arrive: 12
+ExecSize: 8
+END
+
+ID: p8
+Arrive: 14
+ExecSize: 8
+END
+
+EOF
+

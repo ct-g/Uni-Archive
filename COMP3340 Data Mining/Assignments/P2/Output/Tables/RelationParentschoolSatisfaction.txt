@@ -1,0 +1,9 @@
+\begin{tabular}{lrrr}
+\toprule
+{} &   Good &    Bad &  Total \\
+\midrule
+Mum    &  153.0 &   44.0 &  197.0 \\
+Father &  139.0 &  144.0 &  283.0 \\
+Total  &  292.0 &  188.0 &  480.0 \\
+\bottomrule
+\end{tabular}

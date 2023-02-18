@@ -1,0 +1,10 @@
+\begin{tabular}{lrrr}
+\toprule
+{} &     No &    Yes &  Total \\
+\midrule
+A     &  123.0 &  160.0 &  283.0 \\
+B     &   72.0 &   95.0 &  167.0 \\
+C     &   15.0 &   15.0 &   30.0 \\
+Total &  210.0 &  270.0 &  480.0 \\
+\bottomrule
+\end{tabular}

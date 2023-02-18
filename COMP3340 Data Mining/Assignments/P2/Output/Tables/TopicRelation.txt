@@ -1,0 +1,19 @@
+\begin{tabular}{lrrr}
+\toprule
+{} &    Mum &  Father &  Total \\
+\midrule
+Chemistry &   12.0 &    12.0 &   24.0 \\
+Math      &    4.0 &    17.0 &   21.0 \\
+Spanish   &   10.0 &    15.0 &   25.0 \\
+Biology   &   14.0 &    16.0 &   30.0 \\
+Quran     &    8.0 &    14.0 &   22.0 \\
+Science   &   23.0 &    28.0 &   51.0 \\
+Arabic    &   25.0 &    34.0 &   59.0 \\
+IT        &   13.0 &    82.0 &   95.0 \\
+Geology   &   12.0 &    12.0 &   24.0 \\
+History   &    6.0 &    13.0 &   19.0 \\
+French    &   45.0 &    20.0 &   65.0 \\
+English   &   25.0 &    20.0 &   45.0 \\
+Total     &  197.0 &   283.0 &  480.0 \\
+\bottomrule
+\end{tabular}

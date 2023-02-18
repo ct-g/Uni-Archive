@@ -1,0 +1,5 @@
+Use this in graphs folder so that edge weights appear in yed
+ sed -i -e 's/weight/label/g' *gml
+
+ 
+MST total weight is 61

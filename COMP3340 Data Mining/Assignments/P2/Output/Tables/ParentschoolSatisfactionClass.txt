@@ -1,0 +1,9 @@
+\begin{tabular}{lrrrr}
+\toprule
+{} &      M &      L &      H &  Total \\
+\midrule
+Good  &  131.0 &   43.0 &  118.0 &  292.0 \\
+Bad   &   80.0 &   84.0 &   24.0 &  188.0 \\
+Total &  211.0 &  127.0 &  142.0 &  480.0 \\
+\bottomrule
+\end{tabular}
